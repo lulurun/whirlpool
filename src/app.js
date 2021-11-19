@@ -9,33 +9,46 @@ export default class App {
   start(el, param) {
     // TODO: removeEventListener some where
     window.addEventListener('popstate', (ev) => {
-      this.trigger('popstate', ev);
+      this.publish('popstate', ev);
     });
     const root = new Component('', el, this);
     root.loadChildren(() => {}, param);
   }
 
-  trigger(topic, data, publisher) {
-    if (!(topic in this.topics))
-      return;
-    for (let s in this.topics[topic]) {
-      this.topics[topic][s](topic, data, publisher);
+  publish(topic, data, publisher) {
+    if (!(topic in this.topics)) {
+      this.topics[topic] = {
+        subscribers: {},
+      }
+    }
+
+    const entry = this.topics[topic];
+    Object.values(entry.subscribers).forEach((cb) => {
+      cb(data, publisher);
+    });
+    entry.data = data;
+    entry.publisher = publisher;
+  }
+
+  subscribe(topic, cb, subscriber) {
+    if (!(topic in this.topics)) {
+      this.topics[topic] = {
+        subscribers: {},
+      };
+    }
+
+    const entry = this.topics[topic];
+    entry.subscribers[subscriber] = cb;
+    if (entry.publisher) {
+      cb(entry.data, entry.publisher);
     }
   }
 
-  on(topic, cb, subscriber) {
-    if (!(topic in this.topics))
-      this.topics[topic] = {};
-    this.topics[topic][subscriber] = cb;
-  }
-
-  off(topic, subscriber) {
+  unsubscribe(topic, subscriber) {
     if (!(topic in this.topics))
       return;
-    const subscribers = this.topics[topic];
+    const subscribers = this.topics[topic].subscribers;
     delete subscribers[subscriber];
-    if (subscribers.length === 0)
-      delete this.topics[topic];
   }
 };
 

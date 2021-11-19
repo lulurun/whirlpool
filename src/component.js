@@ -1,3 +1,4 @@
+const COMPONENT_ATTR = 'data-component';
 const knownComponentClasses = {};
 
 export class Component {
@@ -5,13 +6,13 @@ export class Component {
     this.name = name;
     this.el = el;
     this.app = app;
-    this.complete = false;
     this.parent = parent;
+    this.complete = false;
     this.children = [];
     this.topics = [];
   }
 
-  render(data, template, param) {
+  render(data, template) {
     this.el.innerHTML = template(data);
     this.children.forEach(c => {
       c.destroyed();
@@ -20,14 +21,14 @@ export class Component {
   }
 
   loadChildren(cb, param) {
-    const els = this.el.querySelectorAll('[data-component]');
+    const els = this.el.querySelectorAll('[' + COMPONENT_ATTR + ']');
     if (!els || !els.length)
       return cb();
 
     const len = els.length;
     let nbComplete = 0;
     els.forEach(el => {
-      const name = el.getAttribute('data-component');
+      const name = el.getAttribute(COMPONENT_ATTR);
       const Class = knownComponentClasses[name];
       const c = new Class(name, el, this.app, this);
       this.children.push(c);
@@ -43,7 +44,7 @@ export class Component {
     this.complete = false;
     this.getData(data => {
       // TODO rely on app side to setup the template function (mustache, handlebar, etc)
-      this.render(data, this.template, param);
+      this.render(data, this.template);
       this.rendered(() => {
         this.loadChildren(() => {
           this.complete = true;
@@ -59,14 +60,18 @@ export class Component {
     });
     this.children = [];
     this.topics.forEach(topic => {
-      this.app.off(topic, this);
+      this.app.unsubscribe(topic, this);
     })
     this.topics = [];
   }
 
-  on(topic, cb) {
-    this.app.on(topic, cb, this);
+  subscribe(topic, cb) {
+    this.app.subscribe(topic, cb, this);
     this.topics.push(topic);
+  }
+
+  publish(topic, data) {
+    this.app.publish(topic, data, this);
   }
 
   // These 2 methods are to be overrided by each component
@@ -81,8 +86,8 @@ export class Component {
 
 export function registerComponent(name, def) {
   const cls = class extends Component {
-    constructor(name, el, parent) {
-      super(name, el, parent);
+    constructor(name, el, app, parent) {
+      super(name, el, app, parent);
       if (def.template) {
         this.template = def.template;
       }
