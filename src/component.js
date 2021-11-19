@@ -29,13 +29,18 @@ export class Component {
     let nbComplete = 0;
     els.forEach(el => {
       const name = el.getAttribute(COMPONENT_ATTR);
-      const Class = knownComponentClasses[name];
-      const c = new Class(name, el, this.app, this);
-      this.children.push(c);
-      c.load(() => {
+      if (name in knownComponentClasses) {
+        const Class = knownComponentClasses[name];
+        const c = new Class(name, el, this.app, this);
+        this.children.push(c);
+        c.load(() => {
+          if (++nbComplete === len)
+            cb();
+        }, param);
+      } else {
         if (++nbComplete === len)
-          cb();
-      }, param);
+        cb();
+      }
     });
   }
 
@@ -88,9 +93,7 @@ export function registerComponent(name, def) {
   const cls = class extends Component {
     constructor(name, el, app, parent) {
       super(name, el, app, parent);
-      if (def.template) {
-        this.template = def.template;
-      }
+      this.template = def.template || (() => '');
       if (def.init) {
         def.init.bind(this)();
       }

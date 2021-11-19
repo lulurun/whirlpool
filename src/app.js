@@ -1,9 +1,18 @@
 import { Component } from './component.js';
 
+function getOrCreate(topics, topic) {
+  if (!topics.has(topic)) {
+    topics.set(topic, {
+      subscribers: new Map(),
+    });
+  }
+  return topics.get(topic);
+}
+
 export default class App {
   constructor(name) {
     this.name = name;
-    this.topics = {};
+    this.topics = new Map();
   }
 
   start(el, param) {
@@ -16,39 +25,28 @@ export default class App {
   }
 
   publish(topic, data, publisher) {
-    if (!(topic in this.topics)) {
-      this.topics[topic] = {
-        subscribers: {},
-      }
-    }
-
-    const entry = this.topics[topic];
-    Object.values(entry.subscribers).forEach((cb) => {
+    const entry = getOrCreate(this.topics, topic);
+    for (let cb of entry.subscribers.values()) {
       cb(data, publisher);
-    });
+    }
     entry.data = data;
     entry.publisher = publisher;
   }
 
   subscribe(topic, cb, subscriber) {
-    if (!(topic in this.topics)) {
-      this.topics[topic] = {
-        subscribers: {},
-      };
-    }
-
-    const entry = this.topics[topic];
-    entry.subscribers[subscriber] = cb;
+    const entry = getOrCreate(this.topics, topic);
+    entry.subscribers.set(subscriber, cb);
     if (entry.publisher) {
       cb(entry.data, entry.publisher);
     }
   }
 
   unsubscribe(topic, subscriber) {
-    if (!(topic in this.topics))
+    if (!this.topics.has(topic)) {
       return;
-    const subscribers = this.topics[topic].subscribers;
-    delete subscribers[subscriber];
+    }
+    const subscribers = this.topics.get(topic).subscribers;
+    subscribers.delete(subscriber);
   }
 };
 
