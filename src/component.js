@@ -12,14 +12,6 @@ export class Component {
     this.topics = [];
   }
 
-  render(data, template) {
-    this.el.innerHTML = template(data);
-    this.children.forEach(c => {
-      c.destroyed();
-    });
-    this.children = [];
-  }
-
   loadChildren(cb, param) {
     const els = this.el.querySelectorAll('[' + COMPONENT_ATTR + ']');
     if (!els || !els.length)
@@ -48,14 +40,21 @@ export class Component {
     param = param || {};
     this.complete = false;
     this.getData(data => {
-      // TODO rely on app side to setup the template function (mustache, handlebar, etc)
-      this.render(data, this.template);
-      this.rendered(() => {
-        this.loadChildren(() => {
-          this.complete = true;
-          if (cb) cb();
-        }, param)
-      }, param);
+      this.getTemplate((template) => {
+        // render
+        this.el.innerHTML = template(data);
+        this.children.forEach(c => {
+          c.destroyed();
+        });
+        this.children = [];
+        // after render
+        this.rendered(() => {
+          this.loadChildren(() => {
+            this.complete = true;
+            if (cb) cb();
+          }, param)
+        }, param);
+      });
     }, param)
   }
 
@@ -84,6 +83,10 @@ export class Component {
     if (cb) cb(this.data || {});
   }
 
+  getTemplate(cb) {
+    if (cb) cb(this.template || (() => ''));
+  }
+
   rendered(cb) {
     if (cb) cb();
   }
@@ -93,9 +96,16 @@ export function registerComponent(name, def) {
   const cls = class extends Component {
     constructor(name, el, app, parent) {
       super(name, el, app, parent);
-      this.template = def.template || (() => '');
       if (def.init) {
         def.init.bind(this)();
+      }
+
+      if (def.template) {
+        this.template = def.template;
+      } else if (app.getTemplate) {
+        this.getTemplate = (cb) => {
+          app.getTemplate(this.name, cb);
+        };
       }
       if (def.getData) {
         this.getData = def.getData.bind(this);

@@ -10,8 +10,9 @@ function getOrCreate(topics, topic) {
 }
 
 export default class App {
-  constructor(name) {
+  constructor(name, getTemplate) {
     this.name = name;
+    this.getTemplate = getTemplate;
     this.topics = new Map();
   }
 
