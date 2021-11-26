@@ -1,5 +1,6 @@
+import factory from './factory.js';
+
 const COMPONENT_ATTR = 'data-component';
-const knownComponentClasses = {};
 
 export class Component {
   constructor(name, el, app, parent) {
@@ -7,7 +8,6 @@ export class Component {
     this.el = el;
     this.app = app;
     this.parent = parent;
-    this.complete = false;
     this.children = [];
     this.topics = [];
   }
@@ -21,9 +21,8 @@ export class Component {
     let nbComplete = 0;
     els.forEach(el => {
       const name = el.getAttribute(COMPONENT_ATTR);
-      if (name in knownComponentClasses) {
-        const Class = knownComponentClasses[name];
-        const c = new Class(name, el, this.app, this);
+      const c = factory.createInstance(name, el, this.app, this);
+      if (c) {
         this.children.push(c);
         c.load(() => {
           if (++nbComplete === len)
@@ -115,5 +114,5 @@ export function registerComponent(name, def) {
       }
     }
   }
-  knownComponentClasses[name] = cls;
+  factory.add(name, cls);
 };
