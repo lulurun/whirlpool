@@ -355,8 +355,9 @@
     Factory.add(name, cls);
   }
 
-  var DEFAULT_COMPONENT_ATTR = 'data-default-component';
-  var CURRENT_COMPONENT_ATTR = 'data-current-component';
+  var DEFAULT_ATTR = 'data-default';
+  var CURRENT_ATTR = 'data-current';
+  var TOPIC_SUFFIX = '.current';
   var Switch = /*#__PURE__*/function () {
     function Switch(name, el, app, parent) {
       var _this = this;
@@ -368,8 +369,8 @@
       this.app = app;
       this.parent = parent;
       this.currentComponent = null;
-      this.defaultComponentName = el.getAttribute(DEFAULT_COMPONENT_ATTR);
-      this.app.subscribe(this.name + '.current', function (name) {
+      this.defaultComponentName = el.getAttribute(DEFAULT_ATTR);
+      this.app.subscribe(this.name + TOPIC_SUFFIX, function (name) {
         if (_this.currentComponent && _this.currentComponent.name === name) return;
 
         _this.load(function () {}, {
@@ -391,7 +392,7 @@
           if (_this2.currentComponent) _this2.currentComponent.destroyed();
           _this2.currentComponent = c;
 
-          _this2.el.setAttribute(CURRENT_COMPONENT_ATTR, componentName);
+          _this2.el.setAttribute(CURRENT_ATTR, componentName);
 
           cb();
         }, param);
@@ -401,7 +402,7 @@
       value: function destroyed() {
         if (this.currentComponent) this.currentComponent.destroyed();
         this.currentComponent = null;
-        this.app.unsubscribe(this.name + '.current', this);
+        this.app.unsubscribe(this.name + TOPIC_SUFFIX, this);
       }
     }]);
 

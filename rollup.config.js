@@ -26,7 +26,7 @@ export default [
         name: moduleName,
         file: pkg.browser,
         format: 'umd',
-        sourcemap: 'inline',
+        // sourcemap: 'inline',
         banner
       },
       // minified
@@ -34,7 +34,7 @@ export default [
         name: moduleName,
         file: pkg.browser.replace('.js', '.min.js'),
         format: 'umd',
-        sourcemap: 'inline',
+        // sourcemap: 'inline',
         banner,
         plugins: [
           pluginTerser(),

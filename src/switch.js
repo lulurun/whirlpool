@@ -1,7 +1,8 @@
 import factory from './factory.js';
 
-const DEFAULT_COMPONENT_ATTR = 'data-default-component';
-const CURRENT_COMPONENT_ATTR = 'data-current-component';
+const DEFAULT_ATTR = 'data-default';
+const CURRENT_ATTR = 'data-current';
+const TOPIC_SUFFIX = '.current';
 
 export class Switch {
   constructor(name, el, app, parent) {
@@ -10,9 +11,9 @@ export class Switch {
     this.app = app;
     this.parent = parent;
     this.currentComponent = null;
-    this.defaultComponentName = el.getAttribute(DEFAULT_COMPONENT_ATTR);
+    this.defaultComponentName = el.getAttribute(DEFAULT_ATTR);
 
-    this.app.subscribe(this.name + '.current', (name) => {
+    this.app.subscribe(this.name + TOPIC_SUFFIX, (name) => {
       if (this.currentComponent && this.currentComponent.name === name) return;
       this.load(() => {}, { name: name });
     }, this);
@@ -28,7 +29,7 @@ export class Switch {
     c.load(() => {
       if (this.currentComponent) this.currentComponent.destroyed();
       this.currentComponent = c;
-      this.el.setAttribute(CURRENT_COMPONENT_ATTR, componentName);
+      this.el.setAttribute(CURRENT_ATTR, componentName);
       cb();
     }, param);
   }
@@ -36,7 +37,7 @@ export class Switch {
   destroyed() {
     if (this.currentComponent) this.currentComponent.destroyed();
     this.currentComponent = null;
-    this.app.unsubscribe(this.name + '.current', this);
+    this.app.unsubscribe(this.name + TOPIC_SUFFIX, this);
   }
 }
 
