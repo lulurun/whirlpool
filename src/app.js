@@ -14,17 +14,32 @@ export default class App {
     this.name = name;
     this.getTemplate = getTemplate;
     this.topics = new Map();
+    this.events = new Map();
   }
 
   start(el, param) {
     // TODO: removeEventListener some where
     window.addEventListener('popstate', (ev) => {
-      this.publish('popstate', ev);
+      this.trigger('popstate', ev);
     });
     const root = new Component('', el, this);
     root.loadChildren(() => {}, param);
   }
 
+  // Event execution
+  trigger(evName, params) {
+    if (!this.events.has(evName)) return;
+    const cb = this.events.get(evName);
+    if (cb) {
+      cb(params);
+    }
+  }
+
+  on(evName, cb) {
+    this.events.set(evName, cb);
+  }
+
+  // Data sharing
   publish(topic, data, publisher) {
     const entry = getOrCreate(this.topics, topic);
     for (let cb of entry.subscribers.values()) {
@@ -32,22 +47,25 @@ export default class App {
     }
     entry.data = data;
     entry.publisher = publisher;
+    entry.available = true;
   }
 
   subscribe(topic, cb, subscriber) {
     const entry = getOrCreate(this.topics, topic);
     entry.subscribers.set(subscriber, cb);
-    if (entry.publisher) {
+    if (entry.available) {
       cb(entry.data, entry.publisher);
     }
   }
 
+  get(topic, cb) {
+    const entry = getOrCreate(this.topics, topic);
+    cb(entry.available, entry.data, entry.publisher);
+  }
+
   unsubscribe(topic, subscriber) {
-    if (!this.topics.has(topic)) {
-      return;
-    }
+    if (!this.topics.has(topic)) return;
     const subscribers = this.topics.get(topic).subscribers;
     subscribers.delete(subscriber);
   }
 };
-

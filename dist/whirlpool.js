@@ -443,6 +443,7 @@
       this.name = name;
       this.getTemplate = getTemplate;
       this.topics = new Map();
+      this.events = new Map();
     }
 
     _createClass(App, [{
@@ -452,11 +453,28 @@
 
         // TODO: removeEventListener some where
         window.addEventListener('popstate', function (ev) {
-          _this.publish('popstate', ev);
+          _this.trigger('popstate', ev);
         });
         var root = new Component('', el, this);
         root.loadChildren(function () {}, param);
+      } // Event execution
+
+    }, {
+      key: "trigger",
+      value: function trigger(evName, params) {
+        if (!this.events.has(evName)) return;
+        var cb = this.events.get(evName);
+
+        if (cb) {
+          cb(params);
+        }
       }
+    }, {
+      key: "on",
+      value: function on(evName, cb) {
+        this.events.set(evName, cb);
+      } // Data sharing
+
     }, {
       key: "publish",
       value: function publish(topic, data, publisher) {
@@ -478,6 +496,7 @@
 
         entry.data = data;
         entry.publisher = publisher;
+        entry.available = true;
       }
     }, {
       key: "subscribe",
@@ -485,17 +504,20 @@
         var entry = getOrCreate(this.topics, topic);
         entry.subscribers.set(subscriber, cb);
 
-        if (entry.publisher) {
+        if (entry.available) {
           cb(entry.data, entry.publisher);
         }
       }
     }, {
+      key: "get",
+      value: function get(topic, cb) {
+        var entry = getOrCreate(this.topics, topic);
+        cb(entry.available, entry.data, entry.publisher);
+      }
+    }, {
       key: "unsubscribe",
       value: function unsubscribe(topic, subscriber) {
-        if (!this.topics.has(topic)) {
-          return;
-        }
-
+        if (!this.topics.has(topic)) return;
         var subscribers = this.topics.get(topic).subscribers;
         subscribers["delete"](subscriber);
       }
