@@ -41,10 +41,13 @@ export class Switch {
   }
 }
 
-export function registerSwitch(name) {
+export function registerSwitch(name, defaultComponentName) {
   const cls = class extends Switch {
     constructor(name, el, app, parent) {
       super(name, el, app, parent);
+      if (defaultComponentName) {
+        this.defaultComponentName = defaultComponentName;
+      }
     }
   }
   factory.add(name, cls);

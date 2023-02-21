@@ -408,16 +408,24 @@
 
     return Switch;
   }();
-  function registerSwitch(name) {
+  function registerSwitch(name, defaultComponentName) {
     var cls = /*#__PURE__*/function (_Switch) {
       _inherits(cls, _Switch);
 
       var _super = _createSuper(cls);
 
       function cls(name, el, app, parent) {
+        var _this3;
+
         _classCallCheck(this, cls);
 
-        return _super.call(this, name, el, app, parent);
+        _this3 = _super.call(this, name, el, app, parent);
+
+        if (defaultComponentName) {
+          _this3.defaultComponentName = defaultComponentName;
+        }
+
+        return _this3;
       }
 
       return cls;
