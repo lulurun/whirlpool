@@ -66,6 +66,7 @@ export class Component {
       this.app.unsubscribe(topic, this);
     })
     this.topics = [];
+    this.cleanup();
   }
 
   subscribe(topic, cb) {
@@ -89,6 +90,8 @@ export class Component {
   rendered(cb) {
     if (cb) cb();
   }
+
+  cleanup() {}
 };
 
 export function registerComponent(name, def) {
@@ -111,6 +114,9 @@ export function registerComponent(name, def) {
       }
       if (def.rendered) {
         this.rendered = def.rendered.bind(this);
+      }
+      if (def.cleanup) {
+        this.cleanup = def.cleanup.bind(this);
       }
     }
   }

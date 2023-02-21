@@ -279,6 +279,7 @@
           _this3.app.unsubscribe(topic, _this3);
         });
         this.topics = [];
+        this.cleanup();
       }
     }, {
       key: "subscribe",
@@ -309,6 +310,9 @@
       value: function rendered(cb) {
         if (cb) cb();
       }
+    }, {
+      key: "cleanup",
+      value: function cleanup() {}
     }]);
 
     return Component;
@@ -344,6 +348,10 @@
 
         if (def.rendered) {
           _this4.rendered = def.rendered.bind(_assertThisInitialized(_this4));
+        }
+
+        if (def.cleanup) {
+          _this4.cleanup = def.cleanup.bind(_assertThisInitialized(_this4));
         }
 
         return _this4;
