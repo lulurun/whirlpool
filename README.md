@@ -4,7 +4,16 @@ A lightweight, component-based JavaScript framework for building modular web app
 
 ## Overview
 
-Whirlpool is a minimalist framework that provides:
+Whirlpool is a minimalist framework designed for simplicity and ease of use. Key benefits:
+
+### Framework Benefits
+- **🪶 Lightweight**: Only 6.7KB minified - minimal overhead for your applications
+- **🎯 Simple**: Clean, intuitive API with minimal concepts to learn
+- **📚 Low Learning Curve**: Easy to understand patterns that developers can pick up quickly
+- **🤖 AI-Friendly**: Clear documentation and patterns that AI can read and implement effectively
+- **⚡ Fast Development**: Build modular web apps quickly with minimal boilerplate
+
+### Core Features
 - **Component-based architecture** with automatic lifecycle management
 - **Event-driven communication** between components using publish/subscribe pattern
 - **Template-based rendering** with Handlebars integration
