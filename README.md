@@ -71,27 +71,65 @@ W.component('component-name', {
     // DOM manipulation after template rendering
     const $container = $(this.el);
 
-    // Event handlers
-    $container.find('.button').on('click', () => {
-      this.handleClick();
+    // Event handlers - MUST use arrow functions () => {} to preserve 'this' context
+    $container.find('.button').on('click', (ev) => {
+      const $button = $(ev.currentTarget);
+      const buttonId = $button.data('id');
+      const buttonText = $button.text();
+
+      // Access clicked element data
+      console.log('Button clicked:', buttonId, buttonText);
+
+      // 'this' refers to the component because we used arrow function
+      this.publish('button.clicked', {
+        id: buttonId,
+        text: buttonText,
+        element: $button[0]
+      });
+
+      // Update component state and reload if needed
+      this.someState = 'updated';
+      this.load(); // Reload component
     });
 
-    cb(); // Always call callback when done
-  },
+    // Multiple event handlers - always use arrow functions
+    $container.find('.checkbox').on('change', (ev) => {
+      const isChecked = $(ev.currentTarget).is(':checked');
+      // 'this' works because of arrow function
+      this.publish('checkbox.changed', { checked: isChecked });
+    });
 
-  // Custom methods (NOT bound to component object)
-  handleClick: function() {
-    // Custom component methods
-    this.publish('button.clicked', { id: 'example' });
+    // WRONG: Regular function loses 'this' context
+    // $container.find('.button').on('click', function(ev) {
+    //   this.publish(...); // ERROR: 'this' refers to the button element, not component
+    // });
+
+    cb(); // Always call callback when done
   }
 });
 ```
 
 ## Framework Limitations
 
+### 1. Custom Methods Not Bound
 **Important:** Only framework-reserved methods are bound to the component object. Custom methods like `this.fetchData()` will cause "no such method" errors.
 
 **Solution:** Use external classes for complex logic:
+
+### 2. Event Handler Context
+**Critical:** Event handlers must use arrow functions `() => {}` to preserve component `this` context. Regular `function() {}` will lose the component reference.
+
+```javascript
+// CORRECT: Arrow function preserves 'this'
+$container.find('.button').on('click', (ev) => {
+  this.publish('event', data); // 'this' refers to component
+});
+
+// WRONG: Regular function loses 'this'
+$container.find('.button').on('click', function(ev) {
+  this.publish('event', data); // ERROR: 'this' refers to button element
+});
+```
 
 ```javascript
 // Data accessor class (defined before component)
