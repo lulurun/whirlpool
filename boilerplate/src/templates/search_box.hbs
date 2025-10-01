@@ -1,0 +1,22 @@
+<div class="search-box">
+  <div class="input-group">
+    <span class="input-group-text">
+      🔍
+    </span>
+    <input
+      type="text"
+      class="form-control search-input"
+      placeholder="{{placeholder}}"
+      value="{{searchTerm}}"
+      aria-label="Search"
+    >
+    {{#if hasValue}}
+    <button class="btn btn-outline-secondary clear-search" type="button" title="Clear search">
+      ✖️
+    </button>
+    {{/if}}
+  </div>
+  <small class="form-text text-muted">
+    Type 2+ characters to filter results
+  </small>
+</div>

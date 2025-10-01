@@ -1,0 +1,99 @@
+<div class="pagination-container">
+  {{#if hasMultiplePages}}
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <nav aria-label="Data pagination">
+          <ul class="pagination pagination-sm mb-0">
+            <!-- Previous button -->
+            <li class="page-item {{#unless hasPrevious}}disabled{{/unless}}">
+              <a class="page-link page-prev" href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+
+            <!-- Page numbers -->
+            {{#pages}}
+            <li class="page-item {{#if isCurrent}}active{{/if}}">
+              <a class="page-link" href="#" data-page="{{number}}">
+                {{number}}
+              </a>
+            </li>
+            {{/pages}}
+
+            <!-- Next button -->
+            <li class="page-item {{#unless hasNext}}disabled{{/unless}}">
+              <a class="page-link page-next" href="#" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-md-6">
+        <div class="d-flex justify-content-md-end align-items-center">
+          <!-- Items per page selector -->
+          <div class="me-3">
+            <label class="form-label mb-0 me-2">Show:</label>
+            <select class="form-select form-select-sm items-per-page" style="width: auto; display: inline-block;">
+              <option value="5" {{#ifEqual itemsPerPage 5}}selected{{/ifEqual}}>5</option>
+              <option value="10" {{#ifEqual itemsPerPage 10}}selected{{/ifEqual}}>10</option>
+              <option value="25" {{#ifEqual itemsPerPage 25}}selected{{/ifEqual}}>25</option>
+              <option value="50" {{#ifEqual itemsPerPage 50}}selected{{/ifEqual}}>50</option>
+            </select>
+          </div>
+
+          <!-- Page info -->
+          <small class="text-muted">
+            {{startItem}}-{{endItem}} of {{totalItems}}
+          </small>
+        </div>
+      </div>
+    </div>
+  {{else}}
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+          <small class="text-muted">
+            {{totalItems}} item{{#unless (ifEqual totalItems 1)}}s{{/unless}} total
+          </small>
+          {{#if hasSelection}}
+            <small class="text-info">
+              {{selectedCount}} item{{#unless (ifEqual selectedCount 1)}}s{{/unless}} selected
+            </small>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if hasSelection}}
+    <div class="row mt-2">
+      <div class="col-12">
+        <div class="alert alert-info alert-sm py-2">
+          <strong>{{selectedCount}}</strong> item{{#unless (ifEqual selectedCount 1)}}s{{/unless}} selected
+          <button class="btn btn-sm btn-outline-info ms-2">Bulk Action</button>
+        </div>
+      </div>
+    </div>
+  {{/if}}
+</div>
+
+<!-- Additional Handlebars helpers -->
+<script>
+if (typeof Handlebars !== 'undefined') {
+  Handlebars.registerHelper('ifEqual', function(a, b, options) {
+    if (a === b) {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+
+  Handlebars.registerHelper('unless', function(conditional, options) {
+    if (!conditional) {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+}
+</script>

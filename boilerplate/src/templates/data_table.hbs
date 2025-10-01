@@ -1,0 +1,108 @@
+<div class="data-table-container">
+  {{#if loading}}
+    <div class="loading">
+      <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+      <p class="mt-2">Loading data...</p>
+    </div>
+  {{else}}
+    {{#if hasItems}}
+      <!-- Table controls and status -->
+      <div class="table-controls">
+        <div class="d-flex align-items-center">
+          {{#if isFiltered}}
+            <span class="filter-status badge bg-info">
+              Showing {{filteredItems}} of {{totalItems}} items
+            </span>
+          {{else}}
+            <span class="text-muted">
+              {{totalItems}} items total
+            </span>
+          {{/if}}
+        </div>
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-secondary" type="button">
+            📤 Export
+          </button>
+          <button class="btn btn-outline-danger" type="button">
+            🗑️ Delete Selected
+          </button>
+        </div>
+      </div>
+
+      <!-- Data table -->
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th style="width: 50px;">
+                <input type="checkbox" class="form-check-input select-all" title="Select all">
+              </th>
+              {{#columns}}
+              <th class="sortable-header" data-column="{{.}}">
+                <div class="d-flex align-items-center justify-content-between">
+                  <span>{{this}}</span>
+                  <span class="sort-indicator">
+                    {{#ifEqual ../sortColumn this}}
+                      {{#ifEqual ../sortDirection 'asc'}}↑{{else}}↓{{/ifEqual}}
+                    {{/ifEqual}}
+                  </span>
+                </div>
+              </th>
+              {{/columns}}
+            </tr>
+          </thead>
+          <tbody>
+            {{#items}}
+            <tr>
+              <td>
+                <input type="checkbox" class="form-check-input row-select" data-id="{{id}}">
+              </td>
+              <td>{{id}}</td>
+              <td><strong>{{name}}</strong></td>
+              <td>
+                <span class="badge bg-{{#ifEqual department 'Engineering'}}primary{{else}}{{#ifEqual department 'Marketing'}}success{{else}}{{#ifEqual department 'Sales'}}warning{{else}}{{#ifEqual department 'HR'}}info{{else}}secondary{{/ifEqual}}{{/ifEqual}}{{/ifEqual}}{{/ifEqual}}">
+                  {{department}}
+                </span>
+              </td>
+              <td>${{salary}}</td>
+              <td>{{experience}} years</td>
+              <td>
+                <span class="badge bg-{{#ifEqual status 'Active'}}success{{else}}secondary{{/ifEqual}}">
+                  {{status}}
+                </span>
+              </td>
+            </tr>
+            {{/items}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}
+      <div class="text-center py-5">
+        {{#if isFiltered}}
+          <h5>No results found</h5>
+          <p class="text-muted">Try adjusting your search term: "{{searchTerm}}"</p>
+        {{else}}
+          <h5>No data available</h5>
+          <p class="text-muted">There are no items to display</p>
+        {{/if}}
+      </div>
+    {{/if}}
+  {{/if}}
+</div>
+
+<!-- Handlebars helpers inline -->
+<script>
+// Register Handlebars helpers if not already registered
+if (typeof Handlebars !== 'undefined') {
+  Handlebars.registerHelper('ifEqual', function(a, b, options) {
+    if (a === b) {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+}
+</script>
