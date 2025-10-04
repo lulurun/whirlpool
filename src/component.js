@@ -78,7 +78,7 @@ export class Component {
     this.app.publish(topic, data, this);
   }
 
-  // These 2 methods are to be overrided by each component
+  // Below methods are to be overrided by each component
   getData(cb) {
     if (cb) cb(this.data || {});
   }
@@ -98,6 +98,14 @@ export function registerComponent(name, def) {
   const cls = class extends Component {
     constructor(name, el, app, parent) {
       super(name, el, app, parent);
+      if (!def) {
+        if (app.getTemplate) {
+          this.getTemplate = (cb) => {
+            app.getTemplate(this.name, cb);
+          };
+        }
+        return;
+      }
       if (def.init) {
         def.init.bind(this)();
       }

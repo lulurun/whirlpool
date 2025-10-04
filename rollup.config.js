@@ -21,20 +21,22 @@ export default [
   {
     input: inputFileName,
     output: [
-      // uncompressed
+      // minified with map
       {
         name: moduleName,
-        file: pkg.browser,
+        file: pkg.browser.replace('.js', '.min.map.js'),
         format: 'umd',
-        // sourcemap: 'inline',
-        banner
+        sourcemap: 'inline',
+        banner,
+        plugins: [
+          pluginTerser(),
+        ],
       },
       // minified
       {
         name: moduleName,
         file: pkg.browser.replace('.js', '.min.js'),
         format: 'umd',
-        // sourcemap: 'inline',
         banner,
         plugins: [
           pluginTerser(),
