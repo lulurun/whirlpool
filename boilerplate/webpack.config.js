@@ -11,45 +11,23 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env']
-          }
-        }
-      },
-      {
         test: /\.css$/,
         use: ['style-loader', 'css-loader']
       },
       {
         test: /\.hbs$/,
-        loader: 'handlebars-loader',
-        options: {
-          helperDirs: path.resolve(__dirname, 'src/helpers'),
-          partialDirs: path.resolve(__dirname, 'src/templates/partials')
-        }
+        loader: 'handlebars-loader'
       }
     ]
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './public/index.html',
-      filename: 'index.html'
+      template: './public/index.html'
     })
   ],
   devServer: {
-    static: {
-      directory: path.join(__dirname, 'dist'),
-    },
-    compress: true,
+    static: './dist',
     port: 3000,
-    open: true,
-    hot: true
-  },
-  resolve: {
-    extensions: ['.js', '.hbs']
+    open: true
   }
 };

@@ -1,0 +1,6 @@
+<div class="text-center">
+  <button class="btn btn-primary sample-btn">{{buttonText}}</button>
+  {{#if clickCount}}
+    <p class="mt-2 text-muted">Button has been clicked {{clickCount}} time{{#unless (eq clickCount 1)}}s{{/unless}}!</p>
+  {{/if}}
+</div>

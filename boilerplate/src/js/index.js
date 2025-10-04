@@ -5,26 +5,20 @@ import W from '../../dist/whirlpool.js';
 import '../css/styles.css';
 
 // Import all components
-import './components/app.js';
-import './components/data_table.js';
-import './components/search_box.js';
-import './components/pagination.js';
+import './component/main_app.js';
+import './component/sample_button.js';
 
 // Make W available globally
 window.W = W;
 
-// Initialize the application when DOM is ready
+// Initialize application
 $(document).ready(() => {
-    console.log('Whirlpool App starting...');
+    console.log('Whirlpool app starting...');
 
-    // Start the main app
-    const app = W.app('main-app', () => {
-        // Main app template getter - can be customized
-        return () => '<div data-component="app"></div>';
+    // Start the app - Whirlpool will automatically find and initialize components
+    const app = W.app('starter-app', () => {
+        return () => '<div data-component="main-app"></div>';
     });
 
-    // Mount the app to body
     app.mount(document.body);
-
-    console.log('Whirlpool App started successfully!');
 });
