@@ -1,5 +1,5 @@
 node_modules/
-dist/
-.env
+public/main.bundle.js
+public/index.html
 .DS_Store
 *.log

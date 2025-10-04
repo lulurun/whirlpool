@@ -1,96 +1,72 @@
 # Whirlpool Starter - Quick Start
 
-A minimal boilerplate for starting new Whirlpool framework projects.
+Minimal boilerplate following exact kilimanjaro web structure.
 
 ## Setup
 
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-2. **Start development:**
-   ```bash
-   npm start
-   ```
-   Opens at `http://localhost:3000`
-
-3. **Build for production:**
-   ```bash
-   npm run build
-   ```
+```bash
+npm install
+npm start    # Development server
+npm run build # Production build
+```
 
 ## Project Structure
 
 ```
-src/
-├── js/
-│   ├── index.js                # Main entry point - imports all components
-│   ├── common.js               # Shared configuration and utilities
-│   ├── component/              # Component JavaScript files
-│   │   ├── main_app.js         # Main application component
-│   │   └── sample_button.js    # Example button component
-│   └── template/               # HTML template files
-│       ├── main_app.html       # Template for main_app component
-│       └── sample_button.html  # Template for sample_button component
-├── css/
-│   └── styles.css              # Application styles
-public/
-└── index.html                  # Main HTML file
+boilerplate/
+├── src/
+│   ├── html/
+│   │   └── index.html           # Main HTML template
+│   └── js/
+│       ├── index.js             # Entry point - imports all components
+│       ├── component/           # Component JavaScript files
+│       │   └── simple_app.js    # Example component
+│       └── template/            # HTML template files
+│           └── simple_app.html  # Component template
+├── public/
+│   └── whirlpool.min.js        # Whirlpool framework
+├── package.json                # Dependencies
+├── webpack.common.js           # Webpack base config
+├── webpack.dev.js              # Development config
+└── webpack.prod.js             # Production config
 ```
 
-## Adding New Components
+## Adding Components
 
-1. **Create component file:** `src/js/component/my_feature.js`
-   ```javascript
-   W.component('my-feature', {
-     init: function() {
-       // Component initialization
-     },
+1. **Create component:** `src/js/component/my_component.js`
+2. **Create template:** `src/js/template/my_component.html`
+3. **Import in index.js:** Add `import './component/my_component.js';`
+4. **Use in template:** `<div data-component="my-component"></div>`
 
-     getData: function(cb) {
-       cb({
-         message: 'Hello from my feature!'
-       });
-     },
+## Component Pattern
 
-     rendered: function(cb) {
-       // DOM event handlers using arrow functions
-       const $container = $(this.el);
+```javascript
+W.component('my-component', {
+  init: function() {
+    // Initialize data
+  },
 
-       $container.find('.my-button').on('click', () => {
-         // Handle click - 'this' refers to component
-         this.load(); // Reload component
-       });
+  getData: function(cb) {
+    cb({ message: 'Hello World' });
+  },
 
-       cb();
-     }
-   });
-   ```
+  rendered: function(cb) {
+    // Event handlers with arrow functions
+    $(this.el).find('.button').on('click', () => {
+      this.load(); // Reload component
+    });
+    cb();
+  }
+});
+```
 
-2. **Create template file:** `src/js/template/my_feature.html`
-   ```html
-   <div>
-     <h3>{{message}}</h3>
-     <button class="btn btn-primary my-button">Click me</button>
-   </div>
-   ```
+## Template Pattern
 
-3. **Import in index.js:** Add `import './component/my_feature.js';`
+```html
+<div class="container">
+  <h3>{{message}}</h3>
+  <button class="btn btn-primary button">Click me</button>
+</div>
+```
 
-4. **Use in template:** `<div data-component="my-feature"></div>`
-
-## Component Naming
-
-- **File names:** Use underscore format: `my_feature.js`, `user_profile.js`
-- **Component names:** Use kebab-case: `my-feature`, `user-profile`
-- **Template files:** Match component file name: `my_feature.html`
-
-## Key Patterns
-
-- **Event handlers:** Always use arrow functions `() => {}` to preserve `this`
-- **Component communication:** Use `this.publish()` and `this.subscribe()`
-- **External data:** Create DataAccessor classes for complex data handling
-- **Templates:** Use Handlebars syntax with Bootstrap classes
-
-Start building your Whirlpool application! 🌊
+Start building! 🌊
