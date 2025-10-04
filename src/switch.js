@@ -2,7 +2,7 @@ import factory from './factory.js';
 
 const DEFAULT_ATTR = 'data-default';
 const CURRENT_ATTR = 'data-current';
-const TOPIC_SUFFIX = '.current';
+const _RE = /^#([0-9a-zA-Z_\-\/\.]+)/;
 
 export class Switch {
   constructor(name, el, app, parent) {
@@ -12,17 +12,21 @@ export class Switch {
     this.parent = parent;
     this.currentComponent = null;
     this.defaultComponentName = el.getAttribute(DEFAULT_ATTR);
+    this.app.switches.add(this);
+  }
 
-    this.app.subscribe(this.name + TOPIC_SUFFIX, (name) => {
-      if (this.currentComponent && this.currentComponent.name === name) return;
-      this.load(() => {}, { name: name });
-    }, this);
-
+  getComponentName(path) {
+    const match = _RE.exec(path);
+    const componentKey = (match && match[1]) || '';
+    if (!(componentKey in this.knownComponents)) {
+      return this.defaultComponentName;
+    }
+    return this.knownComponents[componentKey];
   }
 
   load(cb, param) {
-    param = param || {};
-    const componentName = param.name || this.defaultComponentName;
+    const componentName = this.getComponentName(location.hash);
+    if (this.currentComponent && this.currentComponent.name === componentName) return;
 
     const c = factory.createInstance(componentName, this.el, this.app, this);
     if (!c) return cb();
@@ -30,6 +34,7 @@ export class Switch {
       if (this.currentComponent) this.currentComponent.destroyed();
       this.currentComponent = c;
       this.el.setAttribute(CURRENT_ATTR, componentName);
+      this.app.publish('switch.' + this.name + '.updated', componentName);
       cb();
     }, param);
   }
@@ -37,18 +42,24 @@ export class Switch {
   destroyed() {
     if (this.currentComponent) this.currentComponent.destroyed();
     this.currentComponent = null;
-    this.app.unsubscribe(this.name + TOPIC_SUFFIX, this);
+    this.app.swithes.delete(this);
   }
 }
 
-export function registerSwitch(name, defaultComponentName) {
+export function registerSwitch(name, def) {
   const cls = class extends Switch {
     constructor(name, el, app, parent) {
       super(name, el, app, parent);
-      if (defaultComponentName) {
-        this.defaultComponentName = defaultComponentName;
+      if (!def) {
+        return;
+      }
+      if (def.knownComponents) {
+        this.knownComponents = def.knownComponents;
+      }
+      if (def.getComponentName) {
+        def.getComponentName.bind(this)();
       }
     }
-  }
+  };
   factory.add(name, cls);
 };

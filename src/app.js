@@ -14,29 +14,19 @@ export default class App {
     this.name = name;
     this.getTemplate = getTemplate;
     this.topics = new Map();
-    this.events = new Map();
+    this.switches = new Set();
+    this.stores = new Map();
   }
 
   start(el, param) {
     // TODO: removeEventListener some where
     window.addEventListener('popstate', (ev) => {
-      this.trigger('popstate', ev);
+      this.switches.forEach((s) => {
+        s.load(() => {});
+      })
     });
     const root = new Component('', el, this);
     root.loadChildren(() => {}, param);
-  }
-
-  // Event execution
-  trigger(evName, params) {
-    if (!this.events.has(evName)) return;
-    const cb = this.events.get(evName);
-    if (cb) {
-      cb(params);
-    }
-  }
-
-  on(evName, cb) {
-    this.events.set(evName, cb);
   }
 
   // Data sharing
@@ -58,14 +48,19 @@ export default class App {
     }
   }
 
-  get(topic, cb) {
-    const entry = getOrCreate(this.topics, topic);
-    cb(entry.available, entry.data, entry.publisher);
-  }
-
   unsubscribe(topic, subscriber) {
     if (!this.topics.has(topic)) return;
     const subscribers = this.topics.get(topic).subscribers;
     subscribers.delete(subscriber);
   }
+
+  setData(key, value) {
+    this.stores.set(key, value);
+    this.publish('data.' + key + '.updated', value);
+  }
+
+  getData(key) {
+    return this.stores.get(key);
+  }
+
 };
