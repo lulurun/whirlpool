@@ -33,15 +33,15 @@ boilerplate/
 
 ## Adding Components
 
-1. **Create component:** `src/js/component/my_component.js`
-2. **Create template:** `src/js/template/my_component.html`
-3. **Import in index.js:** Add `import './component/my_component.js';`
-4. **Use in template:** `<div data-component="my-component"></div>`
+1. **Create component:** `src/js/component/my_component_name.js`
+2. **Create template:** `src/js/template/my_component_name.html`
+3. **Import in index.js:** Add `import './component/my_component_name.js';`
+4. **Use in template:** `<div data-component="my_component_name"></div>`
 
 ## Component Pattern
 
 ```javascript
-W.component('my-component', {
+W.component('my_component_name', {
   init: function() {
     // Initialize data
   },

@@ -1,0 +1,8 @@
+{
+  "appName": "Whirlpool Starter",
+  "items": [
+    { "id": 1, "name": "First Item", "status": "active" },
+    { "id": 2, "name": "Second Item", "status": "pending" },
+    { "id": 3, "name": "Third Item", "status": "completed" }
+  ]
+}

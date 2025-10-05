@@ -1,18 +1,30 @@
-W.component('simple-app', {
-  init: function() {
-    this.appName = 'Whirlpool Starter';
-    this.items = [
-      { id: 1, name: 'First Item', status: 'active' },
-      { id: 2, name: 'Second Item', status: 'pending' },
-      { id: 3, name: 'Third Item', status: 'completed' }
-    ];
-  },
+const statusCssMap = {
+  'active': 'success',
+  'pending': 'warning',
+  'completed': 'secondary'
+};
 
+W.component('simple_app', {
   getData: function(cb) {
-    cb({
-      appName: this.appName,
-      items: this.items,
-      itemCount: this.items.length
+    $.ajax({
+      url: 'sample_data.json',
+      dataType: 'json',
+      success: (data) => {
+        const items = data.items.map(item => ({
+          ...item,
+          badgeClass: statusCssMap[item.status] || 'secondary'
+        }));
+
+        cb({
+          appName: data.appName,
+          items: items,
+          itemCount: items.length
+        });
+      },
+      error: (xhr, status, error) => {
+        console.error('Failed to load data:', error);
+        cb({ appName: '', items: [], itemCount: 0 });
+      }
     });
   },
 

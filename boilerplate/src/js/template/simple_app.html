@@ -24,7 +24,7 @@
                   <td>{{id}}</td>
                   <td>{{name}}</td>
                   <td>
-                    <span class="badge bg-{{#if (eq status 'active')}}success{{else}}{{#if (eq status 'pending')}}warning{{else}}secondary{{/if}}{{/if}}">
+                    <span class="badge bg-{{badgeClass}}">
                       {{status}}
                     </span>
                   </td>
