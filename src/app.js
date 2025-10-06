@@ -9,13 +9,56 @@ function getOrCreate(topics, topic) {
   return topics.get(topic);
 }
 
+export class Data {
+  constructor(app) {
+    this.app = app;
+    this.store = new Map();
+  }
+
+  get(dataKey) {
+    return this.store.get(dataKey).value;
+  }
+
+  register(dataKey, fetchFn) {
+    this.store.set(dataKey, {
+      value: null,
+      fetch: fetchFn,
+    });
+  }
+
+  _fetch(dataKey, cb) {
+    const def = this.store.get(dataKey);
+    def.fetch((data) => {
+      def.value = data;
+      cb(data);
+    });
+  }
+
+  refresh(dataKey) {
+    this._fetch(dataKey, (data) => {
+      this.app.publish('data.' + dataKey + '.updated', data);
+    })
+  }
+
+  fetch(dataKeys, cb) {
+    const total = dataKeys.length;
+    const results = {};
+    dataKeys.forEach((dataKey) => {
+      this._fetch(dataKey, (data) => {
+        results[dataKey] = data;
+        if (Object.keys(results).length === total) cb(results);
+      });
+    });
+  }
+}
+
 export default class App {
   constructor(name, getTemplate) {
     this.name = name;
     this.getTemplate = getTemplate;
     this.topics = new Map();
     this.switches = new Set();
-    this.stores = new Map();
+    this.data = new Data(this);
   }
 
   start(el, param) {
@@ -35,17 +78,11 @@ export default class App {
     for (let cb of entry.subscribers.values()) {
       cb(data, publisher);
     }
-    entry.data = data;
-    entry.publisher = publisher;
-    entry.available = true;
   }
 
   subscribe(topic, cb, subscriber) {
     const entry = getOrCreate(this.topics, topic);
     entry.subscribers.set(subscriber, cb);
-    if (entry.available) {
-      cb(entry.data, entry.publisher);
-    }
   }
 
   unsubscribe(topic, subscriber) {
@@ -53,14 +90,4 @@ export default class App {
     const subscribers = this.topics.get(topic).subscribers;
     subscribers.delete(subscriber);
   }
-
-  setData(key, value) {
-    this.stores.set(key, value);
-    this.publish('data.' + key + '.updated', value);
-  }
-
-  getData(key) {
-    return this.stores.get(key);
-  }
-
 };
