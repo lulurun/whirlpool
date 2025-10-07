@@ -1,102 +1,66 @@
-<div class="container mt-4">
-  <div class="row">
-    <div class="col-12">
-      <div class="card">
-        {{#if isRoot}}
-        <div class="card-header">
-          <h3 class="card-title mb-0">Dynamic Form Builder</h3>
-          <small class="text-muted">Build forms dynamically with custom fields</small>
-        </div>
-        {{/if}}
-        <div class="card-body">
-          <form id="dynamicForm">
-            {{#fields}}
-            <div class="mb-3">
-              <div class="row align-items-center">
-                <div class="col-sm-3">
-                  <input
-                    type="text"
-                    class="form-control"
-                    value="{{name}}"
-                    data-field-name="{{name}}"
-                    placeholder="Field name"
-                  />
-                </div>
-                <div class="col-sm-7">
-                  {{#eq type "value"}}
-                  <input
-                    type="text"
-                    class="form-control"
-                    value="{{value}}"
-                    data-field="{{name}}"
-                    placeholder="Field value"
-                  />
-                  {{/eq}}
-                </div>
-                <div class="col-sm-2">
-                  <button
-                    type="button"
-                    class="btn btn-danger w-100"
-                    data-remove="{{name}}"
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-              {{#eq type "object"}}
-              <div class="ms-4 mt-2 p-3 border rounded bg-light">
-                <div data-component="dynamic_form" data-path="{{path}}"></div>
-              </div>
-              {{/eq}}
-            </div>
-            {{/fields}}
-
-            {{^fields}}
-            <div class="alert alert-info">
-              No fields yet. Click "Add Field" or "Add Object" to start building your form.
-            </div>
-            {{/fields}}
-
-            <div class="mt-4">
-              <button
-                type="button"
-                id="addFieldBtn"
-                class="btn btn-primary me-2"
-              >
-                Add Field
-              </button>
-              <button
-                type="button"
-                id="addObjectBtn"
-                class="btn btn-info me-2"
-              >
-                Add Object
-              </button>
-              {{#if isRoot}}
-              <button
-                type="submit"
-                class="btn btn-success"
-              >
-                Submit
-              </button>
-              {{/if}}
-            </div>
-          </form>
-
-          {{#if isRoot}}
-          <div class="mt-4">
-            <h5>Current Form Data (JSON)</h5>
-            <pre id="jsonDisplay" class="bg-light p-3 border rounded" style="max-height: 300px; overflow-y: auto;">{{formDataJson}}</pre>
-          </div>
-
-          <div class="mt-3">
-            <small class="text-muted">
-              Add custom fields, edit field names and values. The JSON below updates in real-time.
-            </small>
-          </div>
-          {{/if}}
-        </div>
-      </div>
+{{#fields}}
+<div class="mb-2">
+  <div class="row align-items-start">
+    <div class="col-sm-1">
+      <b>{{name}}</b>
+    </div>
+    <div class="col-sm-10">
+      {{#eq type "value"}}
+      <input
+        type="text"
+        class="form-control"
+        value="{{value}}"
+        data-field="{{name}}"
+        placeholder="Field value"
+      />
+      {{/eq}}
+      {{#eq type "object"}}
+      <div class="border rounded p-3 bg-light" data-component="dynamic_form" data-path="{{path}}"></div>
+      {{/eq}}
+    </div>
+    <div class="col-sm-1">
+      <button
+        type="button"
+        class="btn btn-danger me-2"
+        data-remove="{{name}}"
+      >x</button>
     </div>
   </div>
+</div>
+{{/fields}}
+
+<div class="mb-3">
+  <div class="row align-items-center">
+    <div class="col-sm-8">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Field name"
+      />
+    </div>
+    <div class="col-sm-3">
+      <select class="form-control">
+        <option>value</option>
+        <option>object</option>
+      </select>
+    </div>
+    <div class="col-sm-1">
+      <button
+        type="button"
+        id="addFieldBtn"
+        class="btn btn-primary me-2"
+      >+</button>
+    </div>
+  </div>
+</div>
+
+<div class="mt-4">
+  {{#if isRoot}}
+  <button
+    type="submit"
+    class="btn btn-success"
+  >
+    Submit
+  </button>
+  {{/if}}
 </div>

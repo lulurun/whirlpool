@@ -1,5 +1,6 @@
 // Import Whirlpool components
 import './component/dynamic_form.js';
+import './component/preview.js';
 
 function getTemplate(name, cb) {
   // Load templates from the same directory

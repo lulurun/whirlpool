@@ -4,20 +4,17 @@ let globalFormData = {};
 W.component('dynamic_form', {
   init: function() {
     // Get the data-path attribute to determine which part of formData to edit
-    const dataPath = this.el.getAttribute('data-path') || '';
-    this.dataPath = dataPath;
-    this.isRoot = dataPath === '';
+    this.dataPath = this.el.getAttribute('data-path') || '';
+    this.isRoot = this.dataPath === '';
 
     // Get reference to the nested object this component should edit
     if (this.isRoot) {
       this.formData = globalFormData;
     } else {
-      const keys = dataPath.split('.');
+      const keys = this.dataPath.split('/');
+      keys.shift();
       let current = globalFormData;
       for (const key of keys) {
-        if (!(key in current)) {
-          current[key] = {};
-        }
         current = current[key];
       }
       this.formData = current;
@@ -35,10 +32,9 @@ W.component('dynamic_form', {
           name: fieldName,
           value: isObject ? '' : value,
           type: isObject ? 'object' : 'value',
-          path: this.dataPath ? `${this.dataPath}.${fieldName}` : fieldName
+          path: `${this.dataPath}/${fieldName}`,
         };
       }),
-      formDataJson: JSON.stringify(globalFormData, null, 2)
     });
   },
 
@@ -47,48 +43,24 @@ W.component('dynamic_form', {
 
     // Update JSON display (only for root component)
     const updateJsonDisplay = () => {
-      if (this.isRoot) {
-        $container.find('#jsonDisplay').text(JSON.stringify(globalFormData, null, 2));
-      } else {
-        // Find root component and update its display
-        let root = this.parent;
-        while (root && root.parent) {
-          root = root.parent;
-        }
-        if (root && root.updateJsonDisplay) {
-          root.updateJsonDisplay();
-        }
-      }
+      this.publish('data.formData.updated', globalFormData);
     };
     this.updateJsonDisplay = updateJsonDisplay;
 
     // Handle add field button
-    $container.find('#addFieldBtn').on('click', () => {
-      const newFieldName = '';
-      this.formData[newFieldName] = '';
-      this.load();
-    });
-
-    // Handle add object button
-    $container.find('#addObjectBtn').on('click', () => {
-      const newFieldName = '';
-      this.formData[newFieldName] = {};
-      this.load();
-    });
-
-    // Handle field name changes
-    $container.find('input[data-field-name]').on('input', (e) => {
-      const oldFieldName = $(e.target).data('field-name');
-      const newFieldName = e.target.value;
-
-      if (oldFieldName !== newFieldName) {
-        const value = this.formData[oldFieldName];
-        delete this.formData[oldFieldName];
-        this.formData[newFieldName] = value;
-        $(e.target).data('field-name', newFieldName);
-        $(e.target).closest('.row').find('input[data-field]').data('field', newFieldName);
+    $container.find('#addFieldBtn').on('click', (e) => {
+      const $row = $(e.target).closest('.row')
+      const name = $row.find('input').val();
+      const type = $row.find('select').val();
+      if (!name || name in this.formData) {
+        return;
       }
+      var value = '';
+      if (type === 'object') value = {};
+      this.formData[name] = value;
       updateJsonDisplay();
+      this.load();
+      console.log(globalFormData);
     });
 
     // Handle field value changes
@@ -96,12 +68,14 @@ W.component('dynamic_form', {
       const fieldName = $(e.target).data('field');
       this.formData[fieldName] = e.target.value;
       updateJsonDisplay();
+      console.log(globalFormData);
     });
 
     // Handle remove field buttons
     $container.find('button[data-remove]').on('click', (e) => {
       const fieldName = $(e.currentTarget).data('remove');
       delete this.formData[fieldName];
+      updateJsonDisplay();
       this.load();
     });
 
