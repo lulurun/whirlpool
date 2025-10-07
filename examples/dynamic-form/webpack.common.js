@@ -47,7 +47,15 @@ module.exports = {
           }
         }
       },
-      { test: /\.html$/, use: 'handlebars-loader' },
+      {
+        test: /\.html$/,
+        use: {
+          loader: 'handlebars-loader',
+          options: {
+            helperDirs: [path.resolve(__dirname, 'src/js/helpers')]
+          }
+        }
+      },
       {
         test: /\.css$/,
         use: [ 'style-loader', 'css-loader' ]
