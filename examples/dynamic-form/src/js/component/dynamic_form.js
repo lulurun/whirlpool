@@ -1,5 +1,5 @@
 // Global form data shared across all instances
-let globalFormData = {};
+const globalFormData = {};
 
 W.component('dynamic_form', {
   init: function() {
