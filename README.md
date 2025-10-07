@@ -212,21 +212,129 @@ Components automatically render using Handlebars templates:
 </div>
 ```
 
+## Getting Started
+
+### Quick Setup
+
+1. **Clone the boilerplate:**
+```bash
+git clone <whirlpool-repo>
+cd whirlpool/boilerplate
+npm install
+npm start    # Development server at http://localhost:8080
+```
+
+2. **Build for production:**
+```bash
+npm run build  # Output to public/ directory
+```
+
+### Project Structure
+
+```
+your-app/
+├── src/
+│   ├── html/
+│   │   └── index.html           # Main HTML entry point
+│   └── js/
+│       ├── index.js             # App entry - imports components & sets up template loader
+│       ├── component/           # Component JavaScript files
+│       │   └── my_component.js
+│       └── template/            # Handlebars template files
+│           └── my_component.html
+├── public/
+│   ├── whirlpool.min.js        # Whirlpool framework (6.7KB)
+│   └── sample_data.json         # Optional static data
+├── package.json                # Dependencies
+├── webpack.common.js           # Webpack base config
+├── webpack.dev.js              # Development config
+└── webpack.prod.js             # Production config
+```
+
+### Application Entry Point
+
+Your `src/js/index.js` is the entry point that sets up the Whirlpool app:
+
+```javascript
+// Import all your components
+import './component/my_component.js';
+import './component/another_component.js';
+
+// Template loader function - required for Whirlpool
+function getTemplate(name, cb) {
+  // Dynamically imports template files
+  import('./template/' + name + '.html').then((tmpl) => {
+    cb(tmpl.default);
+  });
+}
+
+// Create Whirlpool app with a name and template loader
+const app = W.app('my-app-name', getTemplate);
+
+// Start the application on document.body
+app.start(document.body);
+```
+
+**Key Points:**
+- Import all component files at the top
+- `getTemplate` function loads Handlebars templates dynamically
+- Template files must be in `src/js/template/` directory
+- Component name must match template filename (e.g., `my_component.js` → `my_component.html`)
+- `app.start(document.body)` initializes all components with `data-component` attributes
+
 ## DOM Integration
 
-### Component Declaration
+### Component Declaration in HTML
+
 ```html
-<!-- HTML markup -->
-<div data-component="my-component"></div>
-<div data-component="child-component"></div>
+<!-- Main entry point: src/html/index.html -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>My Whirlpool App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script defer src="./whirlpool.min.js"></script>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <!-- Components are declared with data-component attribute -->
+      <div data-component="my_component"></div>
+    </div>
+  </body>
+</html>
 ```
+
+### Nested Components
+
+Components can contain other components using `data-component` attributes in templates:
+
+```html
+<!-- parent_component.html -->
+<div class="parent">
+  <h2>Parent Component</h2>
+
+  <!-- Child component with data attributes -->
+  <div data-component="child_component" data-path="/some/path"></div>
+
+  <!-- Multiple children -->
+  <div data-component="another_child"></div>
+</div>
+```
+
+**Passing Data to Child Components:**
+- Use `data-*` attributes to pass data from parent to child
+- Access in child component: `this.el.getAttribute('data-path')`
+- Example from dynamic-form: `<div data-component="dynamic_form" data-path="{{path}}"></div>`
 
 ### Automatic Instantiation
 Whirlpool automatically:
-1. Scans for `data-component` attributes
-2. Creates component instances
-3. Calls component lifecycle methods
-4. Manages parent-child relationships
+1. Scans for `data-component` attributes when app starts
+2. Creates component instances for each matching element
+3. Calls component lifecycle methods in order: `init()` → `getData()` → render → `rendered()`
+4. Recursively instantiates nested child components
+5. Manages parent-child relationships via `this.parent` and `this.children`
 
 ## Data Flow Patterns
 
@@ -246,116 +354,388 @@ Raw API Data → DataAccessor.fetch() → DataAccessor.process() →
 Component.getData() → Apply UI State → Template Rendering
 ```
 
+## Creating New Components
+
+### Step-by-Step Process
+
+1. **Create component file:** `src/js/component/my_component.js`
+```javascript
+W.component('my_component', {
+  init: function() {
+    // Setup code here
+  },
+
+  getData: function(cb) {
+    cb({ message: 'Hello World' });
+  },
+
+  rendered: function(cb) {
+    // DOM event handlers here
+    cb();
+  }
+});
+```
+
+2. **Create template file:** `src/js/template/my_component.html`
+```html
+<div class="my-component">
+  <h3>{{message}}</h3>
+</div>
+```
+
+3. **Import in index.js:**
+```javascript
+import './component/my_component.js';
+```
+
+4. **Use in HTML or parent template:**
+```html
+<div data-component="my_component"></div>
+```
+
+### Component Naming Convention
+
+- **File names**: Use snake_case (e.g., `my_component.js`)
+- **Component names**: Match file names exactly (e.g., `W.component('my_component', {...})`)
+- **Template names**: Must match component name (e.g., `my_component.html`)
+
+## Common Handlebars Template Patterns
+
+### Conditionals
+```html
+{{#if hasItems}}
+  <p>Has items!</p>
+{{else}}
+  <p>No items</p>
+{{/if}}
+```
+
+### Loops
+```html
+{{#items}}
+  <div>{{name}} - {{value}}</div>
+{{/items}}
+```
+
+### Custom Helpers (Built-in)
+```html
+{{#eq type "object"}}
+  <p>This is an object</p>
+{{/eq}}
+```
+
+### Accessing Current Context
+```html
+<!-- When data is a string or primitive -->
+<pre>{{.}}</pre>
+```
+
+### Data Attributes in Templates
+```html
+<!-- Pass data to event handlers -->
+<button data-item-id="{{id}}" data-action="delete">Delete</button>
+
+<!-- Access in rendered() -->
+<script>
+$container.find('button').on('click', (ev) => {
+  const itemId = $(ev.currentTarget).data('item-id');
+  const action = $(ev.currentTarget).data('action');
+});
+</script>
+```
+
 ## Best Practices
 
 ### Component Design
 1. **Single Responsibility**: Each component should have one clear purpose
 2. **Event Communication**: Use events for component communication, not direct method calls
-3. **State Management**: Keep UI state in components, data state in data accessors
+3. **State Management**: Keep UI state in components, data state in data accessors or global variables
 4. **Lifecycle Management**: Use `init()` for setup, `rendered()` for DOM manipulation
+5. **Arrow Functions**: Always use `() => {}` in event handlers to preserve `this` context
 
 ### Data Management
-1. **Separation of Concerns**: Use external classes for data access and processing
-2. **Caching**: Cache processed data and only re-process when necessary
+1. **Separation of Concerns**: Use external classes for complex data access and processing
+2. **Caching**: Store data in instance variables to avoid re-fetching
 3. **Smart Updates**: Use events to trigger selective updates rather than full page reloads
+4. **Transform in getData**: Transform raw data into template-ready format in `getData()`
 
 ### Event Patterns
-1. **Descriptive Names**: Use clear event names like `data.updated`, `action.hide`
+1. **Descriptive Names**: Use clear event names like `data.updated`, `action.clicked`
 2. **Data Payloads**: Include relevant data in event payloads
 3. **Type Discrimination**: Use type fields in events for different update types
+4. **Subscribe in init()**: Set up all subscriptions in the `init()` method
 
-## Real-World Example: Results Component
+### Common Pitfalls to Avoid
 
+1. **❌ Using regular functions in event handlers**
 ```javascript
-// Data accessor for external data handling
-class ResultsDataAccessor {
-  constructor() {
-    this.rawData = null;
-    this.flattenedData = null;
-  }
+// WRONG - loses 'this' context
+$container.find('.btn').on('click', function(ev) {
+  this.load(); // ERROR: 'this' is the button, not the component
+});
 
-  fetchData(callback) {
-    $.get('/api/results')
-      .done(data => {
-        this.rawData = data;
-        this.flattenedData = this.flattenData(data);
-        if (callback) callback();
-      });
-  }
+// CORRECT - preserves 'this' context
+$container.find('.btn').on('click', (ev) => {
+  this.load(); // 'this' is the component
+});
+```
 
-  flattenData(data) {
-    // Process and flatten data
-    return { run_logs: [], columns: [] };
+2. **❌ Defining custom methods on component**
+```javascript
+// WRONG - methods not bound by framework
+W.component('my_component', {
+  myCustomMethod: function() { // This won't work!
+    return this.data;
   }
+});
 
-  getFlattenedData() {
-    return this.flattenedData || { run_logs: [], columns: [] };
+// CORRECT - use external class
+class MyHelper {
+  getData() {
+    return this.data;
   }
 }
+```
 
-W.component('results', {
-  init: function() {
-    this.data_accessor = new ResultsDataAccessor();
-    this.sortColumn = null;
-    this.sortDirection = 'asc';
+3. **❌ Forgetting to call callback**
+```javascript
+// WRONG - framework will hang
+rendered: function(cb) {
+  $container.find('.btn').on('click', () => {});
+  // Missing cb();
+}
 
-    // Subscribe to updates from other components
-    this.subscribe('data.updated', (data) => {
-      if (data.type === 'results') {
-        this.data_accessor.fetchData(() => {
-          this.load();
+// CORRECT - always call callback
+rendered: function(cb) {
+  $container.find('.btn').on('click', () => {});
+  cb();
+}
+```
+
+4. **❌ Component name mismatch**
+```javascript
+// File: my_component.js
+W.component('myComponent', {...}); // WRONG
+
+// File: my_component.html
+// Template won't load!
+
+// CORRECT
+W.component('my_component', {...});
+```
+
+## Real-World Examples
+
+### Example 1: Simple Component with AJAX Data Loading
+
+From the boilerplate - loads data from JSON file and handles user interactions:
+
+```javascript
+// src/js/component/simple_app.js
+
+// Helper: Map data to CSS classes
+const statusCssMap = {
+  'active': 'success',
+  'pending': 'warning',
+  'completed': 'secondary'
+};
+
+W.component('simple_app', {
+  getData: function(cb) {
+    // Load data via AJAX
+    $.ajax({
+      url: 'sample_data.json',
+      dataType: 'json',
+      success: (data) => {
+        // Transform data before passing to template
+        const items = data.items.map(item => ({
+          ...item,
+          badgeClass: statusCssMap[item.status] || 'secondary'
+        }));
+
+        cb({
+          appName: data.appName,
+          items: items,
+          itemCount: items.length
         });
-      } else {
-        this.load(); // Reload with existing data
+      },
+      error: (xhr, status, error) => {
+        console.error('Failed to load data:', error);
+        cb({ appName: '', items: [], itemCount: 0 });
       }
     });
-
-    // Initial data fetch
-    this.data_accessor.fetchData(() => {
-      this.load();
-    });
-  },
-
-  getData: function(cb) {
-    const flattenedData = this.data_accessor.getFlattenedData();
-
-    // Apply sorting and filtering at component level
-    let processedData = this.applySorting(flattenedData);
-    processedData = this.applyFiltering(processedData);
-
-    cb(processedData);
   },
 
   rendered: function(cb) {
     const $container = $(this.el);
 
-    // Sort handler
-    $container.find('.sortable-header').on('click', (ev) => {
-      const column = $(ev.currentTarget).data('column');
-      if (this.sortColumn === column) {
-        this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-      } else {
-        this.sortColumn = column;
-        this.sortDirection = 'asc';
-      }
-      this.load();
-    });
+    // Click handler - MUST use arrow function
+    $container.find('.item-row').on('click', (ev) => {
+      const itemId = $(ev.currentTarget).data('item-id');
+      console.log('Clicked item:', itemId);
 
-    // Selection handler
-    $container.find('.row-select').on('change', () => {
-      const selectedItems = [];
-      $container.find('.row-select:checked').each(function() {
-        selectedItems.push($(this).data('id'));
-      });
-
-      // Publish selection to other components
-      this.publish('results.selected', { items: selectedItems });
+      // Toggle highlight on clicked row
+      $container.find('.item-row').removeClass('table-active');
+      $(ev.currentTarget).addClass('table-active');
     });
 
     cb();
   }
 });
 ```
+
+### Example 2: Recursive Nested Components with Shared State
+
+From dynamic-form example - demonstrates nested components and global state management:
+
+```javascript
+// src/js/component/dynamic_form.js
+
+// Global shared state across all component instances
+let globalFormData = {};
+
+W.component('dynamic_form', {
+  init: function() {
+    // Get configuration from data attributes
+    this.dataPath = this.el.getAttribute('data-path') || '';
+    this.isRoot = this.dataPath === '';
+
+    // Navigate to this component's data in the global state
+    if (this.isRoot) {
+      this.formData = globalFormData;
+    } else {
+      const keys = this.dataPath.split('/').slice(1);
+      let current = globalFormData;
+      for (const key of keys) {
+        current = current[key];
+      }
+      this.formData = current;
+    }
+  },
+
+  getData: function(cb) {
+    cb({
+      isRoot: this.isRoot,
+      fields: Object.keys(this.formData).map(fieldName => {
+        const value = this.formData[fieldName];
+        const isObject = typeof value === 'object' && value !== null;
+
+        return {
+          name: fieldName,
+          value: isObject ? '' : value,
+          type: isObject ? 'object' : 'value',
+          path: `${this.dataPath}/${fieldName}`,
+        };
+      }),
+    });
+  },
+
+  rendered: function(cb) {
+    const $container = $(this.el);
+
+    // Update JSON display helper
+    const updateJsonDisplay = () => {
+      this.publish('data.formData.updated', globalFormData);
+    };
+
+    // Add new field button handler
+    $container.find('#addFieldBtn').on('click', (e) => {
+      const $row = $(e.target).closest('.row');
+      const name = $row.find('input').val();
+      const type = $row.find('select').val();
+
+      if (!name || name in this.formData) return;
+
+      // Add field based on type
+      this.formData[name] = (type === 'object') ? {} : '';
+      updateJsonDisplay();
+      this.load(); // Reload to show new field
+    });
+
+    // Field value change handler
+    $container.find('input[data-field]').on('input', (e) => {
+      const fieldName = $(e.target).data('field');
+      this.formData[fieldName] = e.target.value;
+      updateJsonDisplay();
+    });
+
+    // Remove field button handler
+    $container.find('button[data-remove]').on('click', (e) => {
+      const fieldName = $(e.currentTarget).data('remove');
+      delete this.formData[fieldName];
+      updateJsonDisplay();
+      this.load(); // Reload to remove field from UI
+    });
+
+    cb();
+  }
+});
+```
+
+**Template for nested component** (`dynamic_form.html`):
+```html
+{{#fields}}
+<div class="mb-2">
+  <div class="row align-items-start">
+    <div class="col-sm-1">
+      <b>{{name}}</b>
+    </div>
+    <div class="col-sm-10">
+      {{#eq type "value"}}
+      <input type="text" class="form-control" value="{{value}}"
+             data-field="{{name}}" placeholder="Field value"/>
+      {{/eq}}
+      {{#eq type "object"}}
+      <!-- Recursive nested component with data-path -->
+      <div class="border rounded p-3 bg-light"
+           data-component="dynamic_form" data-path="{{path}}"></div>
+      {{/eq}}
+    </div>
+    <div class="col-sm-1">
+      <button type="button" class="btn btn-danger"
+              data-remove="{{name}}">x</button>
+    </div>
+  </div>
+</div>
+{{/fields}}
+```
+
+### Example 3: Event-Driven Communication Between Components
+
+Preview component that listens to form data updates:
+
+```javascript
+// src/js/component/preview.js
+
+W.component('preview', {
+  init: function() {
+    this.data = null;
+
+    // Subscribe to events from dynamic_form component
+    this.subscribe('data.formData.updated', (data) => {
+      this.data = data;
+      this.load(); // Reload to display updated data
+    });
+  },
+
+  getData: function(cb) {
+    // Format data as JSON string for display
+    cb(JSON.stringify(this.data, null, 2));
+  }
+});
+```
+
+**Template** (`preview.html`):
+```html
+<pre>{{.}}</pre>
+```
+
+**Key Patterns Demonstrated:**
+1. **Shared State**: Global variable accessed by multiple component instances
+2. **Recursive Components**: Component rendering itself for nested objects
+3. **Event Communication**: Components communicate via publish/subscribe
+4. **Dynamic Reloading**: `this.load()` called to refresh UI after state changes
+5. **Data Attributes**: Passing configuration via `data-*` attributes
 
 ## Framework Architecture
 
@@ -375,4 +755,89 @@ W.component('results', {
 - Events flow between components without tight coupling
 - Event payloads carry relevant data for updates
 
-This documentation provides a foundation for building applications with the Whirlpool framework, emphasizing its component-based architecture, event-driven communication, and best practices learned from real-world usage.
+## Quick Reference
+
+### Essential Component Methods
+
+| Method | Purpose | When Called | Must Call cb() |
+|--------|---------|-------------|----------------|
+| `init()` | One-time setup, subscriptions | Component creation | No |
+| `getData(cb)` | Provide data for template | Before each render | Yes |
+| `rendered(cb)` | DOM manipulation, event handlers | After render | Yes |
+| `load(cb, param)` | Trigger re-render cycle | Manual call | Optional |
+| `destroyed()` | Cleanup | Component removal | No |
+
+### Component Properties
+
+| Property | Description | Example |
+|----------|-------------|---------|
+| `this.el` | Component's DOM element | `$(this.el).find('.button')` |
+| `this.app` | Reference to app instance | `this.app.name` |
+| `this.parent` | Parent component | `this.parent.load()` |
+| `this.children` | Array of child components | `this.children[0].load()` |
+
+### Event System
+
+```javascript
+// Publishing events
+this.publish('event.name', { key: 'value' });
+
+// Subscribing to events (in init)
+this.subscribe('event.name', (data) => {
+  console.log(data.key);
+  this.load(); // Reload if needed
+});
+```
+
+### Common jQuery Patterns in rendered()
+
+```javascript
+rendered: function(cb) {
+  const $container = $(this.el);
+
+  // Click handler
+  $container.find('.btn').on('click', (ev) => {
+    const id = $(ev.currentTarget).data('id');
+    this.publish('button.clicked', { id });
+  });
+
+  // Input change
+  $container.find('input').on('input', (ev) => {
+    this.someValue = ev.target.value;
+  });
+
+  // Form submit
+  $container.find('form').on('submit', (ev) => {
+    ev.preventDefault();
+    // Handle form
+  });
+
+  cb(); // Always call!
+}
+```
+
+### Development Workflow
+
+```bash
+# Start development server
+npm start
+
+# Build for production
+npm run build
+
+# Project runs on http://localhost:8080
+```
+
+### File Checklist for New Component
+
+- [ ] Create `src/js/component/my_component.js`
+- [ ] Create `src/js/template/my_component.html`
+- [ ] Import in `src/js/index.js`
+- [ ] Add `<div data-component="my_component"></div>` to HTML/template
+- [ ] Implement `getData(cb)` - provide data
+- [ ] Implement `rendered(cb)` - add event handlers with arrow functions
+- [ ] Call `cb()` in both `getData` and `rendered`
+
+---
+
+This documentation provides a comprehensive foundation for building applications with the Whirlpool framework, emphasizing its component-based architecture, event-driven communication, and best practices learned from real-world usage.
