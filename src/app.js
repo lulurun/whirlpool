@@ -1,17 +1,48 @@
 import { Component } from './component.js';
 
-function getOrCreate(topics, topic) {
-  if (!topics.has(topic)) {
-    topics.set(topic, {
-      subscribers: new Map(),
-    });
+const DATA_UPDATED_EVENT = 'data.updated.';
+const POPSTATE_EVENT = 'app.popstate';
+
+class EventBus {
+  constructor() {
+    this.events = new Map();
   }
-  return topics.get(topic);
+
+  getOrCreate(event) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Map());
+    }
+    return this.events.get(event);
+  }
+
+  emit(event, data, emitter) {
+    const listeners = this.getOrCreate(event);
+    for (let handler of listeners.values()) {
+      handler(data, emitter);
+    }
+  }
+
+  on(event, handler, listener) {
+    const listeners = this.getOrCreate(event);
+    listeners.set(listener, handler);
+  }
+
+  off(event, listener) {
+    if (!this.events.has(event)) return;
+    const listeners = this.events.get(event);
+    listeners.delete(listener);
+  }
+
+  remove(listener) {
+    for (const listeners of this.events.values()) {
+      listeners.delete(listener)
+    }
+  }
 }
 
-export class Data {
-  constructor(app) {
-    this.app = app;
+class Data {
+  constructor(eventBus) {
+    this.eventBus = eventBus;
     this.store = new Map();
   }
 
@@ -36,7 +67,7 @@ export class Data {
 
   refresh(dataKey) {
     this._fetch(dataKey, (data) => {
-      this.app.publish('data.' + dataKey + '.updated', data);
+      this.eventBus.emit(DATA_UPDATED_EVENT + dataKey, data, this);
     })
   }
 
@@ -50,44 +81,40 @@ export class Data {
       });
     });
   }
+
+  on(dataKey, cb, listener) {
+    this.eventBus.on(DATA_UPDATED_EVENT + dataKey, cb, listener);
+  }
+
+  emit(dataKey, data, emitter) {
+    this.eventBus.emit(DATA_UPDATED_EVENT + dataKey, data, emitter);
+  }
+}
+
+class Nav {
+  constructor(eventBus) {
+    this.eventBus = eventBus;
+    window.addEventListener('popstate', (ev) => {
+      this.eventBus.emit(POPSTATE_EVENT, ev, this);
+    });
+  }
+
+  on(cb, listener) {
+    this.eventBus.on(POPSTATE_EVENT, cb, listener);
+  }
 }
 
 export default class App {
   constructor(name, getTemplate) {
     this.name = name;
     this.getTemplate = getTemplate;
-    this.topics = new Map();
-    this.switches = new Set();
-    this.data = new Data(this);
+    this.eventBus = new EventBus();
+    this.nav = new Nav(this.eventBus);
+    this.data = new Data(this.eventBus);
   }
 
   start(el, param) {
-    // TODO: removeEventListener some where
-    window.addEventListener('popstate', (ev) => {
-      this.switches.forEach((s) => {
-        s.load(() => {});
-      })
-    });
     const root = new Component('', el, this);
     root.loadChildren(() => {}, param);
   }
-
-  // Data sharing
-  publish(topic, data, publisher) {
-    const entry = getOrCreate(this.topics, topic);
-    for (let cb of entry.subscribers.values()) {
-      cb(data, publisher);
-    }
-  }
-
-  subscribe(topic, cb, subscriber) {
-    const entry = getOrCreate(this.topics, topic);
-    entry.subscribers.set(subscriber, cb);
-  }
-
-  unsubscribe(topic, subscriber) {
-    if (!this.topics.has(topic)) return;
-    const subscribers = this.topics.get(topic).subscribers;
-    subscribers.delete(subscriber);
-  }
-};
+}

@@ -9,7 +9,6 @@ export class Component {
     this.app = app;
     this.parent = parent;
     this.children = [];
-    this.topics = [];
   }
 
   loadChildren(cb, param) {
@@ -62,20 +61,8 @@ export class Component {
       c.destroyed();
     });
     this.children = [];
-    this.topics.forEach(topic => {
-      this.app.unsubscribe(topic, this);
-    })
-    this.topics = [];
+    this.app.eventBus.remove(this);
     this.cleanup();
-  }
-
-  subscribe(topic, cb) {
-    this.app.subscribe(topic, cb, this);
-    this.topics.push(topic);
-  }
-
-  publish(topic, data) {
-    this.app.publish(topic, data, this);
   }
 
   // Below methods are to be overrided by each component
@@ -92,7 +79,7 @@ export class Component {
   }
 
   cleanup() {}
-};
+}
 
 export function registerComponent(name, def) {
   const cls = class extends Component {
@@ -129,4 +116,4 @@ export function registerComponent(name, def) {
     }
   }
   factory.add(name, cls);
-};
+}
