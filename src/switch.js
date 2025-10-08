@@ -57,7 +57,7 @@ export function registerSwitch(name, def) {
         this.knownComponents = def.knownComponents;
       }
       if (def.getComponentName) {
-        def.getComponentName.bind(this)();
+        this.getComponentName = def.getComponentName.bind(this);
       }
     }
   };

@@ -1,0 +1,25 @@
+<div class="card">
+  <div class="card-body">
+    <h1 class="card-title">{{title}}</h1>
+    <p class="lead">{{content}}</p>
+
+    <h3 class="mt-4">How Switch Works:</h3>
+    <ul class="list-group">
+      {{#details}}
+      <li class="list-group-item">{{.}}</li>
+      {{/details}}
+    </ul>
+
+    <div class="mt-4">
+      <h4>Technical Details:</h4>
+      <pre class="bg-light p-3 rounded"><code>W.switch('main_switch', {
+  knownComponents: {
+    'home': 'home_page',
+    'about': 'about_page',
+    'users': 'users_page',
+    'settings': 'settings_page'
+  }
+});</code></pre>
+    </div>
+  </div>
+</div>

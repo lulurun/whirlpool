@@ -1,0 +1,44 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title mb-0">{{appName}}</h3>
+          <small class="text-muted">Simple Whirlpool component example</small>
+        </div>
+        <div class="card-body">
+          <p>This is a minimal Whirlpool component with {{itemCount}} items:</p>
+
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#items}}
+                <tr class="item-row" data-item-id="{{id}}" style="cursor: pointer;">
+                  <td>{{id}}</td>
+                  <td>{{name}}</td>
+                  <td>
+                    <span class="badge bg-{{badgeClass}}">
+                      {{status}}
+                    </span>
+                  </td>
+                </tr>
+                {{/items}}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-3">
+            <small class="text-muted">Click any row to highlight it</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

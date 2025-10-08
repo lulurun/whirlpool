@@ -1,0 +1,18 @@
+<div class="card">
+  <div class="card-body">
+    <h1 class="card-title">{{title}}</h1>
+    <p class="text-muted">Click on a user to view their details and preferences</p>
+
+    <div class="list-group mt-4">
+      {{#users}}
+      <a href="#user/{{id}}/info" class="list-group-item list-group-item-action">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">{{name}}</h5>
+          <span class="badge bg-primary">{{role}}</span>
+        </div>
+        <small class="text-muted">{{email}}</small>
+      </a>
+      {{/users}}
+    </div>
+  </div>
+</div>

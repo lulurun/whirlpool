@@ -755,6 +755,84 @@ W.component('preview', {
 - Events flow between components without tight coupling
 - Event payloads carry relevant data for updates
 
+### Switch Component - Client-Side Routing
+
+Whirlpool doesn't provide a traditional router. Instead, it uses **Switch** components for routing purposes.
+
+**How Switch Works:**
+
+1. **Registration**: The app registers switch components via `app.switches.add(this)`
+2. **URL Listening**: The app listens to browser `popstate` events (URL hash changes)
+3. **Component Loading**: When URL changes, each switch loads the appropriate component based on the hash
+
+**Basic Switch Usage:**
+
+```html
+<!-- HTML: Switch container -->
+<div data-component="main_switch" data-default="home"></div>
+```
+
+```javascript
+// Component registration
+W.switch('main_switch', {
+  knownComponents: {
+    'home': 'home_page',
+    'about': 'about_page',
+    'users': 'user_list'
+  }
+});
+```
+
+**How It Works:**
+
+- Navigate to `index.html#home` → switch loads `home_page` component
+- Navigate to `index.html#about` → switch loads `about_page` component
+- Navigate to `index.html#users` → switch loads `user_list` component
+- Unknown hash → loads component specified in `data-default` attribute
+
+**The Switch Mechanism:**
+
+1. **URL Change Detection**: App listens to `window.addEventListener('popstate')`
+2. **Switch Reload**: All registered switches reload via `switch.load()`
+3. **Component Selection**: Switch's `getComponentName()` method parses `location.hash` using regex `/^#([0-9a-zA-Z_\-\/\.]+)/`
+4. **Component Mapping**: Returns component name from `knownComponents` map or falls back to `data-default`
+5. **Component Swap**: Old component destroyed, new component loaded into switch container
+
+**Advanced: Custom getComponentName**
+
+```javascript
+W.switch('main_switch', {
+  knownComponents: {
+    'product': 'product_detail',
+    'category': 'category_list'
+  },
+
+  getComponentName: function() {
+    // Custom logic to parse hash and return component name
+    const hash = location.hash;
+    const match = /^#(\w+)\/(\d+)/.exec(hash);
+
+    if (match) {
+      const [_, type, id] = match;
+      // Store ID for component to use
+      this.el.setAttribute('data-id', id);
+      return this.knownComponents[type] || this.defaultComponentName;
+    }
+
+    return this.defaultComponentName;
+  }
+});
+```
+
+**Key Points:**
+
+- Switches manage a **single component container** that swaps components
+- Only **one component is active** in a switch at a time
+- Previous component is **destroyed** when switching
+- `data-default` attribute sets fallback component
+- Hash format: `#component-key` maps to component via `knownComponents`
+- Multiple switches can coexist for complex layouts (sidebar + main content)
+
 ## Quick Reference
 
 ### Essential Component Methods
