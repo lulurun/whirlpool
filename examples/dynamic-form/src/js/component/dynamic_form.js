@@ -43,7 +43,7 @@ W.component('dynamic_form', {
 
     // Update JSON display (only for root component)
     const updateJsonDisplay = () => {
-      this.publish('data.formData.updated', globalFormData);
+      this.app.data.emit('formData', globalFormData);
     };
     this.updateJsonDisplay = updateJsonDisplay;
 

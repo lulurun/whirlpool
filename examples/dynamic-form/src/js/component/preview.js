@@ -1,7 +1,7 @@
 W.component('preview', {
   init: function() {
     this.data = null;
-    this.subscribe('data.formData.updated', (data) => {
+    this.app.data.on('formData', (data) => {
       this.data = data;
       this.load();
     })
