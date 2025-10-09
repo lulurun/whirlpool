@@ -44,7 +44,7 @@ export class Switch {
   destroyed() {
     if (this.currentComponent) this.currentComponent.destroyed();
     this.currentComponent = null;
-    this.app.eventBus.remove(this);
+    this.app.ev.remove(this);
   }
 }
 

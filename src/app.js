@@ -41,8 +41,8 @@ class EventBus {
 }
 
 class Data {
-  constructor(eventBus) {
-    this.eventBus = eventBus;
+  constructor(ev) {
+    this.ev = ev;
     this.store = new Map();
   }
 
@@ -67,7 +67,7 @@ class Data {
 
   refresh(dataKey) {
     this._fetch(dataKey, (data) => {
-      this.eventBus.emit(DATA_UPDATED_EVENT + dataKey, data, this);
+      this.ev.emit(DATA_UPDATED_EVENT + dataKey, data, this);
     })
   }
 
@@ -83,24 +83,24 @@ class Data {
   }
 
   on(dataKey, cb, listener) {
-    this.eventBus.on(DATA_UPDATED_EVENT + dataKey, cb, listener);
+    this.ev.on(DATA_UPDATED_EVENT + dataKey, cb, listener);
   }
 
   emit(dataKey, data, emitter) {
-    this.eventBus.emit(DATA_UPDATED_EVENT + dataKey, data, emitter);
+    this.ev.emit(DATA_UPDATED_EVENT + dataKey, data, emitter);
   }
 }
 
 class Nav {
-  constructor(eventBus) {
-    this.eventBus = eventBus;
+  constructor(ev) {
+    this.ev = ev;
     window.addEventListener('popstate', (ev) => {
-      this.eventBus.emit(POPSTATE_EVENT, ev, this);
+      this.ev.emit(POPSTATE_EVENT, ev, this);
     });
   }
 
   on(cb, listener) {
-    this.eventBus.on(POPSTATE_EVENT, cb, listener);
+    this.ev.on(POPSTATE_EVENT, cb, listener);
   }
 }
 
@@ -108,9 +108,9 @@ export default class App {
   constructor(name, getTemplate) {
     this.name = name;
     this.getTemplate = getTemplate;
-    this.eventBus = new EventBus();
-    this.nav = new Nav(this.eventBus);
-    this.data = new Data(this.eventBus);
+    this.ev = new EventBus();
+    this.nav = new Nav(this.ev);
+    this.data = new Data(this.ev);
   }
 
   start(el, param) {

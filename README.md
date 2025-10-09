@@ -41,15 +41,27 @@ Components have access to these framework-reserved methods that are automaticall
 - `load(callback, param)` - Triggers the complete render cycle
 - `destroyed()` - Called when component is removed from DOM
 
-#### Event Communication
-- `subscribe(topic, handler)` - Subscribe to events from other components
-- `publish(topic, data)` - Publish events to other components
+#### Cleanup Method
+- `cleanup()` - Called during component destruction for custom cleanup logic
 
 #### Framework Properties
 - `this.el` - DOM element of the component
-- `this.app` - Reference to the main application
+- `this.app` - Reference to the main application instance
 - `this.parent` - Reference to parent component
 - `this.children` - Array of child components
+
+#### App Instance Methods
+- `this.app.ev.emit(event, data, emitter)` - Emit events to other components
+- `this.app.ev.on(event, handler, listener)` - Subscribe to events from other components
+- `this.app.ev.off(event, listener)` - Unsubscribe from specific event
+- `this.app.ev.remove(listener)` - Remove listener from all events
+- `this.app.data.register(dataKey, fetchFn)` - Register a data source with fetch function
+- `this.app.data.fetch(dataKeys, cb)` - Fetch multiple data sources at once
+- `this.app.data.get(dataKey)` - Get cached data value
+- `this.app.data.refresh(dataKey)` - Refresh data and emit update events
+- `this.app.data.on(dataKey, cb, listener)` - Subscribe to data updates
+- `this.app.data.emit(dataKey, data, emitter)` - Manually emit data update events
+- `this.app.nav.on(cb, listener)` - Subscribe to navigation (popstate) events
 
 ## Component Definition Pattern
 
@@ -60,10 +72,16 @@ W.component('component-name', {
     // Set up subscriptions, initialize data accessors
     this.data_accessor = new DataAccessor();
 
-    // Subscribe to events
-    this.subscribe('data.updated', (data) => {
+    // Subscribe to events using app.ev
+    this.app.ev.on('data.updated', (data) => {
       this.load(); // Reload component when data changes
-    });
+    }, this);
+
+    // Subscribe to navigation changes
+    this.app.nav.on(() => {
+      // Handle URL changes
+      this.load();
+    }, this);
   },
 
   getData: function(cb) {
@@ -90,11 +108,11 @@ W.component('component-name', {
       console.log('Button clicked:', buttonId, buttonText);
 
       // 'this' refers to the component because we used arrow function
-      this.publish('button.clicked', {
+      this.app.ev.emit('button.clicked', {
         id: buttonId,
         text: buttonText,
         element: $button[0]
-      });
+      }, this);
 
       // Update component state and reload if needed
       this.someState = 'updated';
@@ -105,15 +123,21 @@ W.component('component-name', {
     $container.find('.checkbox').on('change', (ev) => {
       const isChecked = $(ev.currentTarget).is(':checked');
       // 'this' works because of arrow function
-      this.publish('checkbox.changed', { checked: isChecked });
+      this.app.ev.emit('checkbox.changed', { checked: isChecked }, this);
     });
 
     // WRONG: Regular function loses 'this' context
     // $container.find('.button').on('click', function(ev) {
-    //   this.publish(...); // ERROR: 'this' refers to the button element, not component
+    //   this.app.ev.emit(...); // ERROR: 'this' refers to the button element, not component
     // });
 
     cb(); // Always call callback when done
+  },
+
+  cleanup: function() {
+    // Optional cleanup logic called during component destruction
+    // Useful for clearing intervals, removing external event listeners, etc.
+    console.log('Cleaning up component');
   }
 });
 ```
@@ -166,26 +190,200 @@ W.component('my-component', {
 });
 ```
 
+## Data Management System
+
+The framework provides a built-in data management system via `app.data` for centralized state management and reactive data updates.
+
+### Registering Data Sources
+
+```javascript
+// Register a data source with a fetch function
+app.data.register('users', (callback) => {
+  $.ajax({
+    url: '/api/users',
+    success: (data) => callback(data)
+  });
+});
+
+app.data.register('settings', (callback) => {
+  const settings = { theme: 'dark', lang: 'en' };
+  callback(settings);
+});
+```
+
+### Fetching Data
+
+```javascript
+// Fetch single data source
+app.data.fetch(['users'], (results) => {
+  console.log(results.users); // Array of users
+});
+
+// Fetch multiple data sources at once
+app.data.fetch(['users', 'settings'], (results) => {
+  console.log(results.users);    // Users data
+  console.log(results.settings); // Settings data
+});
+```
+
+### Getting Cached Data
+
+```javascript
+// Get cached data value (must be fetched first)
+const users = app.data.get('users');
+```
+
+### Refreshing Data
+
+```javascript
+// Refresh data and emit update events to subscribers
+app.data.refresh('users');
+```
+
+### Subscribing to Data Updates
+
+```javascript
+// In component init - listen for data changes
+W.component('user_list', {
+  init: function() {
+    this.app.data.on('users', (data, emitter) => {
+      console.log('Users updated:', data);
+      this.load(); // Reload component with new data
+    }, this);
+  },
+
+  getData: function(cb) {
+    // Use cached data
+    const users = this.app.data.get('users');
+    cb({ users: users || [] });
+  }
+});
+```
+
+### Manually Emitting Data Updates
+
+```javascript
+// Emit data update event without re-fetching
+this.app.data.emit('users', updatedUsers, this);
+```
+
+### Complete Data Management Example
+
+```javascript
+// Setup data sources in app entry
+const app = W.app('my-app', getTemplate);
+
+app.data.register('users', (cb) => {
+  $.ajax({ url: '/api/users', success: cb });
+});
+
+// Initial data fetch
+app.data.fetch(['users'], (results) => {
+  app.start(document.body);
+});
+
+// In a component - update data and notify subscribers
+W.component('user_form', {
+  rendered: function(cb) {
+    $(this.el).find('form').on('submit', (ev) => {
+      ev.preventDefault();
+
+      $.ajax({
+        url: '/api/users',
+        method: 'POST',
+        data: $(ev.currentTarget).serialize(),
+        success: () => {
+          // Refresh data and notify all subscribers
+          this.app.data.refresh('users');
+        }
+      });
+    });
+    cb();
+  }
+});
+```
+
+### Real-World Data Sharing Example
+
+See the [Shopping Cart Example](examples/shopping-cart) for a complete demonstration of multiple components sharing data:
+
+**Data Flow Pattern:**
+```
+app.data.register('cart', fetchFn)  // Register shared data
+         ↓
+Component A: app.data.on('cart', handler)  // Subscribe
+Component B: app.data.on('cart', handler)  // Subscribe
+Component C: app.data.on('cart', handler)  // Subscribe
+         ↓
+User Action in Component A
+         ↓
+Component A: app.data.emit('cart', newData)  // Emit change
+         ↓
+Framework automatically notifies all subscribers
+         ↓
+Components A, B, C all reload with new data
+```
+
+**Key Benefits:**
+- **Centralized State**: Single source of truth for shared data
+- **Reactive Updates**: Components automatically update when data changes
+- **Decoupled**: Components only know about data keys, not each other
+- **Multiple Subscribers**: Any number of components can share the same data
+- **Multiple Sources**: Components can subscribe to multiple data sources
+
+## Navigation System
+
+The framework provides a navigation system via `app.nav` for handling browser navigation events (hash changes, back/forward buttons).
+
+### Subscribing to Navigation Events
+
+```javascript
+W.component('user_page', {
+  init: function() {
+    this.userId = getUserIdFromHash();
+
+    // Listen to navigation changes
+    this.app.nav.on(() => {
+      const newUserId = getUserIdFromHash();
+
+      // Only reload if the user ID changed
+      if (newUserId && newUserId !== this.userId) {
+        this.userId = newUserId;
+        this.load();
+      }
+    }, this);
+  }
+});
+```
+
+**How it works:**
+- `app.nav` listens to browser `popstate` events (triggered by hash changes, back/forward buttons)
+- Components subscribe via `app.nav.on(callback, listener)` to be notified of navigation changes
+- The callback receives the popstate event data
+- Always pass `this` as the second parameter for proper cleanup
+
 ## Event-Driven Communication
 
 ### Publishing Events
 ```javascript
 // In component method
-this.publish('action.completed', {
+this.app.ev.emit('action.completed', {
   type: 'delete',
   items: ['item1', 'item2']
-});
+}, this);
 ```
 
 ### Subscribing to Events
 ```javascript
 // In component init
-this.subscribe('action.completed', (data) => {
+this.app.ev.on('action.completed', (data, emitter) => {
   if (data.type === 'delete') {
     this.load(); // Reload component
   }
-});
+}, this);
 ```
+
+**Important:** Always pass `this` as the third parameter to `on()` and as the last parameter to `emit()`. This allows the framework to properly clean up event listeners when components are destroyed via `this.app.ev.remove(this)` in the `destroyed()` lifecycle method.
 
 ### Common Event Patterns
 
@@ -635,7 +833,7 @@ W.component('dynamic_form', {
 
     // Update JSON display helper
     const updateJsonDisplay = () => {
-      this.publish('data.formData.updated', globalFormData);
+      this.app.ev.emit('data.formData.updated', globalFormData, this);
     };
 
     // Add new field button handler
@@ -712,10 +910,10 @@ W.component('preview', {
     this.data = null;
 
     // Subscribe to events from dynamic_form component
-    this.subscribe('data.formData.updated', (data) => {
+    this.app.ev.on('data.formData.updated', (data) => {
       this.data = data;
       this.load(); // Reload to display updated data
-    });
+    }, this);
   },
 
   getData: function(cb) {
@@ -749,11 +947,12 @@ W.component('preview', {
 7. **Update Cycle**: `load()` can be called to restart cycle
 8. **Destruction**: `destroyed()` called when component removed
 
-### Event System
-- Global publish/subscribe system
+### Event System (EventBus)
+- Global publish/subscribe system via `app.ev`
 - Components can subscribe to any topic
 - Events flow between components without tight coupling
 - Event payloads carry relevant data for updates
+- Automatic cleanup via `app.ev.remove(this)` when components are destroyed
 
 ### Switch Component - Client-Side Routing
 
@@ -761,9 +960,9 @@ Whirlpool doesn't provide a traditional router. Instead, it uses **Switch** comp
 
 **How Switch Works:**
 
-1. **Registration**: The app registers switch components via `app.switches.add(this)`
-2. **URL Listening**: The app listens to browser `popstate` events (URL hash changes)
-3. **Component Loading**: When URL changes, each switch loads the appropriate component based on the hash
+1. **Navigation Listening**: Switch subscribes to `app.nav.on()` for browser navigation events
+2. **URL Parsing**: When URL changes, switch's `getComponentName()` parses `location.hash`
+3. **Component Swapping**: Switch destroys the current component and loads the new one
 
 **Basic Switch Usage:**
 
@@ -792,46 +991,78 @@ W.switch('main_switch', {
 
 **The Switch Mechanism:**
 
-1. **URL Change Detection**: App listens to `window.addEventListener('popstate')`
-2. **Switch Reload**: All registered switches reload via `switch.load()`
-3. **Component Selection**: Switch's `getComponentName()` method parses `location.hash` using regex `/^#([0-9a-zA-Z_\-\/\.]+)/`
+1. **URL Change Detection**: `app.nav` listens to browser `popstate` events
+2. **Switch Notification**: Switch subscribes via `app.nav.on()` in its constructor
+3. **Component Selection**: Switch's `getComponentName()` method parses `location.hash` using regex `/^#([^\/]+)/`
 4. **Component Mapping**: Returns component name from `knownComponents` map or falls back to `data-default`
-5. **Component Swap**: Old component destroyed, new component loaded into switch container
+5. **Early Exit**: If `getComponentName()` returns `null`, switch does nothing (prevents unnecessary loads)
+6. **Component Swap**: Old component destroyed via `destroyed()`, new component loaded into switch container
 
 **Advanced: Custom getComponentName**
 
+Override `getComponentName()` for complex routing logic:
+
 ```javascript
-W.switch('main_switch', {
+W.switch('user_switch', {
   knownComponents: {
-    'product': 'product_detail',
-    'category': 'category_list'
+    'info': 'user_info',
+    'settings': 'user_settings'
   },
 
   getComponentName: function() {
-    // Custom logic to parse hash and return component name
-    const hash = location.hash;
-    const match = /^#(\w+)\/(\d+)/.exec(hash);
+    // Parse nested route: #user/123/info
+    const match = /^#user\/\d+\/([^\/]+)/.exec(location.hash);
 
-    if (match) {
-      const [_, type, id] = match;
-      // Store ID for component to use
-      this.el.setAttribute('data-id', id);
-      return this.knownComponents[type] || this.defaultComponentName;
-    }
+    // Return null to prevent switch from loading
+    // (useful when hash doesn't match this switch's pattern)
+    if (!match) return null;
 
-    return this.defaultComponentName;
+    const subPage = match[1];
+    return this.knownComponents[subPage] || this.defaultComponentName;
   }
 });
 ```
+
+**Nested Routing Example:**
+
+```javascript
+// Main switch handles top-level routes
+W.switch('main_switch', {
+  knownComponents: {
+    'home': 'home_page',
+    'user': 'user_page'  // user_page contains user_switch
+  }
+});
+
+// User switch handles user sub-routes
+W.switch('user_switch', {
+  knownComponents: {
+    'info': 'user_info',
+    'settings': 'user_settings'
+  },
+  getComponentName: function() {
+    const match = /^#user\/\d+\/([^\/]+)/.exec(location.hash);
+    if (!match) return null;  // Not a user sub-route
+    return this.knownComponents[match[1]] || this.defaultComponentName;
+  }
+});
+```
+
+**Navigation Flow:**
+- `#home` → main_switch loads `home_page`
+- `#user/123/info` → main_switch loads `user_page`, user_switch loads `user_info`
+- `#user/123/settings` → user_switch swaps to `user_settings` (user_page stays)
 
 **Key Points:**
 
 - Switches manage a **single component container** that swaps components
 - Only **one component is active** in a switch at a time
-- Previous component is **destroyed** when switching
+- Previous component is **destroyed** when switching via `destroyed()` lifecycle
 - `data-default` attribute sets fallback component
+- **Return `null`** from `getComponentName()` to prevent unnecessary loads
 - Hash format: `#component-key` maps to component via `knownComponents`
-- Multiple switches can coexist for complex layouts (sidebar + main content)
+- Multiple switches enable **nested routing** (parent + child switches)
+- Switches automatically clean up via `app.ev.remove(this)` when destroyed
 
 ## Quick Reference
 
@@ -843,7 +1074,8 @@ W.switch('main_switch', {
 | `getData(cb)` | Provide data for template | Before each render | Yes |
 | `rendered(cb)` | DOM manipulation, event handlers | After render | Yes |
 | `load(cb, param)` | Trigger re-render cycle | Manual call | Optional |
-| `destroyed()` | Cleanup | Component removal | No |
+| `cleanup()` | Custom cleanup logic | Called by `destroyed()` | No |
+| `destroyed()` | Framework cleanup, calls `cleanup()` | Component removal | No |
 
 ### Component Properties
 
@@ -854,17 +1086,25 @@ W.switch('main_switch', {
 | `this.parent` | Parent component | `this.parent.load()` |
 | `this.children` | Array of child components | `this.children[0].load()` |
 
-### Event System
+### App Instance API
 
 ```javascript
-// Publishing events
-this.publish('event.name', { key: 'value' });
+// EventBus (app.ev) - Component Communication
+this.app.ev.emit('event.name', { key: 'value' }, this);
+this.app.ev.on('event.name', (data, emitter) => { ... }, this);
+this.app.ev.off('event.name', this);
+this.app.ev.remove(this);
 
-// Subscribing to events (in init)
-this.subscribe('event.name', (data) => {
-  console.log(data.key);
-  this.load(); // Reload if needed
-});
+// Data Management (app.data)
+this.app.data.register('dataKey', (cb) => { cb(data); });
+this.app.data.fetch(['key1', 'key2'], (results) => { ... });
+this.app.data.get('dataKey');
+this.app.data.refresh('dataKey');
+this.app.data.on('dataKey', (data, emitter) => { ... }, this);
+this.app.data.emit('dataKey', data, this);
+
+// Navigation (app.nav)
+this.app.nav.on((event, emitter) => { ... }, this);
 ```
 
 ### Common jQuery Patterns in rendered()
@@ -876,7 +1116,7 @@ rendered: function(cb) {
   // Click handler
   $container.find('.btn').on('click', (ev) => {
     const id = $(ev.currentTarget).data('id');
-    this.publish('button.clicked', { id });
+    this.app.ev.emit('button.clicked', { id }, this);
   });
 
   // Input change

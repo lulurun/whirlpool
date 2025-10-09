@@ -69,7 +69,7 @@ export class Component {
       c.destroyed();
     });
     this.children = [];
-    this.app.eventBus.remove(this);
+    this.app.ev.remove(this);
     this.cleanup();
   }
 
