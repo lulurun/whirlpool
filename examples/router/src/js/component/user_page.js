@@ -6,6 +6,7 @@ W.component('user_page', {
     this.app.nav.on(() => {
       const userId = getUserId();
       if (!userId || userId === this.userId) return;
+      this.userId = userId;
       this.load();
     }, this);
   },

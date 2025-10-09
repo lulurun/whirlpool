@@ -37,7 +37,7 @@ export class Switch {
       if (this.currentComponent) this.currentComponent.destroyed();
       this.currentComponent = c;
       this.el.setAttribute(CURRENT_ATTR, componentName);
-      cb();
+      if (cb) cb();
     }, param);
   }
 
