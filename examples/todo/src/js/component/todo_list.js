@@ -1,3 +1,5 @@
+import dataInterface from '../data.js';
+
 W.component('todo_list', {
   init: function() {
     this.app.data.on('todos', () => {
@@ -40,18 +42,22 @@ W.component('todo_list', {
 
     $container.find('.todo-toggle').on('change', (ev) => {
       const id = parseInt($(ev.currentTarget).data('id'), 10);
-      const todos = this.app.data.get('todos') || [];
-      const updated = todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      );
-      this.app.data.emit('todos', updated, this);
+
+      // Call async toggleTodo method
+      dataInterface.toggleTodo(id, (result) => {
+        // Refresh todos data to publish updates to all subscribers
+        this.app.data.refresh('todos');
+      });
     });
 
     $container.find('.todo-delete').on('click', (ev) => {
       const id = parseInt($(ev.currentTarget).data('id'), 10);
-      const todos = this.app.data.get('todos') || [];
-      const updated = todos.filter((todo) => todo.id !== id);
-      this.app.data.emit('todos', updated, this);
+
+      // Call async deleteTodo method
+      dataInterface.deleteTodo(id, (result) => {
+        // Refresh todos data to publish updates to all subscribers
+        this.app.data.refresh('todos');
+      });
     });
 
     cb();

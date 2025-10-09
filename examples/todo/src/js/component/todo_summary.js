@@ -1,3 +1,5 @@
+import dataInterface from '../data.js';
+
 W.component('todo_summary', {
   init: function() {
     this.app.data.on('todos', () => {
@@ -25,17 +27,23 @@ W.component('todo_summary', {
     const $container = $(this.el);
 
     $container.find('#clearCompleted').on('click', () => {
-      const todos = this.app.data.get('todos') || [];
-      const filtered = todos.filter((todo) => !todo.completed);
-      this.app.data.emit('todos', filtered, this);
+      // Call async clearCompleted method
+      dataInterface.clearCompleted((result) => {
+        // Refresh todos data to publish updates to all subscribers
+        this.app.data.refresh('todos');
+      });
     });
 
     $container.find('#toggleAll').on('click', () => {
       const todos = this.app.data.get('todos') || [];
       if (!todos.length) return;
       const shouldCompleteAll = todos.some((todo) => !todo.completed);
-      const updated = todos.map((todo) => ({ ...todo, completed: shouldCompleteAll }));
-      this.app.data.emit('todos', updated, this);
+
+      // Call async toggleAll method
+      dataInterface.toggleAll(shouldCompleteAll, (result) => {
+        // Refresh todos data to publish updates to all subscribers
+        this.app.data.refresh('todos');
+      });
     });
 
     cb();

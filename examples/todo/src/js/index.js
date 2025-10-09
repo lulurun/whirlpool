@@ -3,6 +3,9 @@ import './component/todo_filters.js';
 import './component/todo_list.js';
 import './component/todo_summary.js';
 
+// Import data interface
+import dataInterface from './data.js';
+
 function getTemplate(name, cb) {
   import('./template/' + name + '.html').then((tmpl) => {
     cb(tmpl.default);
@@ -11,23 +14,13 @@ function getTemplate(name, cb) {
 
 const app = W.app('todo-example', getTemplate);
 
-const seedTodos = [
-  { id: 1, title: 'Finish Whirlpool docs', completed: false, priority: 'high' },
-  { id: 2, title: 'Ship demo bundle', completed: true, priority: 'low' },
-  { id: 3, title: 'Plan regression checklist', completed: false, priority: 'medium' }
-];
-
-const defaultFilter = {
-  status: 'all',
-  priority: 'all'
-};
-
+// Register shared data sources using data.js
 app.data.register('todos', (cb) => {
-  cb(seedTodos);
+  dataInterface.getTodos(cb);
 });
 
 app.data.register('todoFilter', (cb) => {
-  cb(defaultFilter);
+  dataInterface.getTodoFilter(cb);
 });
 
 app.data.fetch(['todos', 'todoFilter'], () => {

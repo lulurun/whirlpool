@@ -1,3 +1,5 @@
+import dataInterface from '../data.js';
+
 W.component('todo_form', {
   getData: function(cb) {
     cb({
@@ -30,7 +32,12 @@ W.component('todo_form', {
         priority: $priority.val()
       };
 
-      this.app.data.emit('todos', [...todos, newTodo], this);
+      // Call async addTodo method
+      dataInterface.addTodo(newTodo, (result) => {
+        // Refresh todos data to publish updates to all subscribers
+        this.app.data.refresh('todos');
+      });
+
       $input.val('');
       $priority.val('medium');
     };
