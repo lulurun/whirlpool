@@ -1,11 +1,8 @@
-W.component('user_settings', {
-  init: function() {
-    // Extract user ID from hash
-    const match = /^#user\/(\d+)/.exec(location.hash);
-    this.userId = match ? parseInt(match[1]) : null;
-  },
+import { getUserId } from '../users.js';
 
+W.component('user_settings', {
   getData: function(cb) {
+    this.userId = getUserId();
     cb({
       userId: this.userId,
       settings: [

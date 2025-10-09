@@ -60,7 +60,6 @@ W.component('dynamic_form', {
       this.formData[name] = value;
       updateJsonDisplay();
       this.load();
-      console.log(globalFormData);
     });
 
     // Handle field value changes
@@ -68,7 +67,6 @@ W.component('dynamic_form', {
       const fieldName = $(e.target).data('field');
       this.formData[fieldName] = e.target.value;
       updateJsonDisplay();
-      console.log(globalFormData);
     });
 
     // Handle remove field buttons

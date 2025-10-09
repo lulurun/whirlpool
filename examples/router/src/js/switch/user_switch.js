@@ -15,6 +15,6 @@ W.switch('user_switch', {
       return this.knownComponents[subPage] || this.defaultComponentName;
     }
 
-    return this.defaultComponentName;
+    return null;
   }
 });
