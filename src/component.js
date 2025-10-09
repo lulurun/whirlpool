@@ -9,6 +9,8 @@ export class Component {
     this.app = app;
     this.parent = parent;
     this.children = [];
+    this.complete = true;
+    this.loadCallbacks = [];
   }
 
   loadChildren(cb, param) {
@@ -35,6 +37,9 @@ export class Component {
   }
 
   load(cb, param) {
+    if (cb) this.loadCallbacks.push(cb);
+    if (!this.complete) return;
+
     param = param || {};
     this.complete = false;
     this.getData(data => {
@@ -49,11 +54,14 @@ export class Component {
         this.rendered(() => {
           this.loadChildren(() => {
             this.complete = true;
-            if (cb) cb();
+            this.loadCallbacks.forEach((cb) => {
+              cb();
+            });
+            this.loadCallbacks = [];
           }, param)
         }, param);
       });
-    }, param)
+    }, param);
   }
 
   destroyed() {

@@ -14,7 +14,7 @@ export class Switch {
     this.defaultComponentName = el.getAttribute(DEFAULT_ATTR);
     this.app.nav.on(() => {
       this.load();
-    });
+    }, this);
   }
 
   getComponentName(path) {
@@ -28,6 +28,7 @@ export class Switch {
 
   load(cb, param) {
     const componentName = this.getComponentName(location.hash);
+    if (!componentName) return;
     if (this.currentComponent && this.currentComponent.name === componentName) return;
 
     const c = factory.createInstance(componentName, this.el, this.app, this);
@@ -43,7 +44,7 @@ export class Switch {
   destroyed() {
     if (this.currentComponent) this.currentComponent.destroyed();
     this.currentComponent = null;
-    this.app.unsubscribe(POPSTATE_EVENT, this);
+    this.app.eventBus.remove(this);
   }
 }
 
