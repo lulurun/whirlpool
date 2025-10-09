@@ -1,3 +1,5 @@
+import dataInterface from '../data.js';
+
 W.component('product_list', {
   init: function() {
     // Listen to product data changes
@@ -36,38 +38,30 @@ W.component('product_list', {
     $container.find('.add-to-cart').on('click', (e) => {
       const productId = parseInt($(e.currentTarget).data('product-id'));
       const products = this.app.data.get('products');
-      const cart = this.app.data.get('cart') || [];
 
       const product = products.find(p => p.id === productId);
       if (!product) return;
 
-      // Check if already in cart
-      const existingItem = cart.find(item => item.productId === productId);
+      // Create cart item
+      const cartItem = {
+        productId: productId,
+        name: product.name,
+        price: product.price,
+        quantity: 1
+      };
 
-      let newCart;
-      if (existingItem) {
-        // Increase quantity
-        if (existingItem.quantity >= product.stock) {
-          alert('Cannot add more - stock limit reached');
+      // Call async addToCart method
+      dataInterface.addToCart(cartItem, (result) => {
+        if (result.error) {
+          alert(result.error === 'Stock limit reached'
+            ? 'Cannot add more - stock limit reached'
+            : result.error);
           return;
         }
-        newCart = cart.map(item =>
-          item.productId === productId
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      } else {
-        // Add new item
-        newCart = [...cart, {
-          productId: productId,
-          name: product.name,
-          price: product.price,
-          quantity: 1
-        }];
-      }
 
-      // Emit cart change - all components listening to 'cart' will update
-      this.app.data.emit('cart', newCart, this);
+        // Refresh cart data to publish updates to all subscribers
+        this.app.data.refresh('cart');
+      });
     });
 
     cb();

@@ -1,3 +1,5 @@
+import dataInterface from '../data.js';
+
 W.component('cart_details', {
   init: function() {
     // Subscribe to cart changes
@@ -18,12 +20,12 @@ W.component('cart_details', {
     // Remove item button
     $container.find('.remove-item').on('click', (e) => {
       const productId = parseInt($(e.currentTarget).data('product-id'));
-      const cart = this.app.data.get('cart') || [];
 
-      const newCart = cart.filter(item => item.productId !== productId);
-
-      // Emit updated cart
-      this.app.data.emit('cart', newCart, this);
+      // Call async removeFromCart method
+      dataInterface.removeFromCart(productId, (result) => {
+        // Refresh cart data to publish updates to all subscribers
+        this.app.data.refresh('cart');
+      });
     });
 
     // Decrease quantity button
@@ -31,41 +33,40 @@ W.component('cart_details', {
       const productId = parseInt($(e.currentTarget).data('product-id'));
       const cart = this.app.data.get('cart') || [];
 
-      const newCart = cart.map(item => {
-        if (item.productId === productId) {
-          const newQuantity = item.quantity - 1;
-          if (newQuantity <= 0) return null; // Remove item
-          return { ...item, quantity: newQuantity };
-        }
-        return item;
-      }).filter(item => item !== null);
+      const item = cart.find(i => i.productId === productId);
+      if (!item) return;
 
-      // Emit updated cart
-      this.app.data.emit('cart', newCart, this);
+      const newQuantity = item.quantity - 1;
+
+      // Call async updateQuantity method (0 will remove item)
+      dataInterface.updateQuantity(productId, newQuantity, (result) => {
+        // Refresh cart data to publish updates to all subscribers
+        this.app.data.refresh('cart');
+      });
     });
 
     // Increase quantity button
     $container.find('.increase-qty').on('click', (e) => {
       const productId = parseInt($(e.currentTarget).data('product-id'));
       const cart = this.app.data.get('cart') || [];
-      const products = this.app.data.get('products') || [];
 
-      const product = products.find(p => p.id === productId);
-      if (!product) return;
+      const item = cart.find(i => i.productId === productId);
+      if (!item) return;
 
-      const newCart = cart.map(item => {
-        if (item.productId === productId) {
-          if (item.quantity >= product.stock) {
-            alert('Cannot add more - stock limit reached');
-            return item;
-          }
-          return { ...item, quantity: item.quantity + 1 };
+      const newQuantity = item.quantity + 1;
+
+      // Call async updateQuantity method
+      dataInterface.updateQuantity(productId, newQuantity, (result) => {
+        if (result.error) {
+          alert(result.error === 'Stock limit reached'
+            ? 'Cannot add more - stock limit reached'
+            : result.error);
+          return;
         }
-        return item;
-      });
 
-      // Emit updated cart
-      this.app.data.emit('cart', newCart, this);
+        // Refresh cart data to publish updates to all subscribers
+        this.app.data.refresh('cart');
+      });
     });
 
     cb();

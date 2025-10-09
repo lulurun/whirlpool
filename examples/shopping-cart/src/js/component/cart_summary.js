@@ -1,3 +1,5 @@
+import dataInterface from '../data.js';
+
 W.component('cart_summary', {
   init: function() {
     // Subscribe to cart changes
@@ -27,8 +29,11 @@ W.component('cart_summary', {
     // Clear cart button
     $container.find('#clearCart').on('click', () => {
       if (confirm('Clear entire cart?')) {
-        // Emit empty cart - all subscribers will update
-        this.app.data.emit('cart', [], this);
+        // Call async clearCart method
+        dataInterface.clearCart((result) => {
+          // Refresh cart data to publish updates to all subscribers
+          this.app.data.refresh('cart');
+        });
       }
     });
 
