@@ -1,0 +1,28 @@
+<div class="card">
+  <div class="card-header">
+    <h5 class="mb-0">Products</h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      {{#products}}
+      <div class="col-md-6 mb-3">
+        <div class="card">
+          <div class="card-body">
+            <h6 class="card-title">{{name}}</h6>
+            <p class="card-text">
+              <strong>Price:</strong> ${{price}}<br>
+              <strong>Stock:</strong> {{stock}} available
+              {{#if inCart}}
+              <br><span class="badge bg-success">{{inCart}} in cart</span>
+              {{/if}}
+            </p>
+            <button class="btn btn-primary btn-sm add-to-cart" data-product-id="{{id}}">
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+      {{/products}}
+    </div>
+  </div>
+</div>
