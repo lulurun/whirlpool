@@ -3,8 +3,10 @@ const webpack = require('webpack');
 const webpackTerser = require('terser-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const distDir = './public';
+const whirlpoolDist = path.resolve(__dirname, '../../dist/whirlpool.min.js');
 
 module.exports = {
   entry: [
@@ -21,6 +23,14 @@ module.exports = {
     new webpack.ProvidePlugin({
       $: 'jquery',
       jQuery: 'jquery'
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: whirlpoolDist,
+          to: path.resolve(__dirname, distDir, 'whirlpool.min.js'),
+        },
+      ],
     }),
   ],
   optimization: {
