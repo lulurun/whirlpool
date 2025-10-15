@@ -1,66 +1,74 @@
+{{#if isRoot}}
+<form id="dynamicForm" data-role="dynamic-form-root" class="dynamic-form">
+{{/if}}
+
 {{#fields}}
-<div class="mb-2">
-  <div class="row align-items-start">
-    <div class="col-sm-1">
-      <b>{{name}}</b>
+<div class="mb-3">
+  <div class="row g-2 align-items-start">
+    <div class="col-12 col-md-3 col-lg-2">
+      <label class="form-label fw-semibold">{{name}}</label>
     </div>
-    <div class="col-sm-10">
+    <div class="col">
       {{#eq type "value"}}
       <input
         type="text"
         class="form-control"
         value="{{value}}"
         data-field="{{name}}"
-        placeholder="Field value"
+        placeholder="Enter a value"
       />
       {{/eq}}
       {{#eq type "object"}}
       <div class="border rounded p-3 bg-light" data-component="dynamic_form" data-path="{{path}}"></div>
       {{/eq}}
     </div>
-    <div class="col-sm-1">
+    <div class="col-auto">
       <button
         type="button"
-        class="btn btn-danger me-2"
+        class="btn btn-outline-danger btn-sm"
+        data-role="remove-field"
         data-remove="{{name}}"
-      >x</button>
+      >
+        Remove
+      </button>
     </div>
   </div>
 </div>
 {{/fields}}
 
-<div class="mb-3">
-  <div class="row align-items-center">
-    <div class="col-sm-8">
+<div class="bg-light border rounded p-3 mb-3" data-role="add-field-row">
+  <div class="row g-2 align-items-center">
+    <div class="col-12 col-md-5">
       <input
         type="text"
         class="form-control"
-        placeholder="Field name"
+        placeholder="New field name"
+        data-role="new-field-name"
       />
     </div>
-    <div class="col-sm-3">
-      <select class="form-control">
-        <option>value</option>
-        <option>object</option>
+    <div class="col">
+      <select class="form-select" data-role="new-field-type">
+        <option value="value" selected>value</option>
+        <option value="object">object</option>
       </select>
     </div>
-    <div class="col-sm-1">
+    <div class="col-auto">
       <button
         type="button"
-        id="addFieldBtn"
-        class="btn btn-primary me-2"
-      >+</button>
+        class="btn btn-primary"
+        data-role="add-field"
+      >
+        +
+      </button>
     </div>
   </div>
 </div>
 
-<div class="mt-4">
-  {{#if isRoot}}
-  <button
-    type="submit"
-    class="btn btn-success"
-  >
+{{#if isRoot}}
+<div class="d-flex justify-content-end">
+  <button type="submit" class="btn btn-success">
     Submit
   </button>
-  {{/if}}
 </div>
+</form>
+{{/if}}
