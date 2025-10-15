@@ -11,8 +11,7 @@ import './component/user_info.js';
 import './component/user_settings.js';
 
 function getTemplate(name, cb) {
-  // Load templates from the same directory
-  import('./template/' + name + '.html').then((tmpl) => {
+  import(`./template/${name}.html`).then((tmpl) => {
     cb(tmpl.default);
   });
 }

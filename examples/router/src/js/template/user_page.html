@@ -1,32 +1,29 @@
 {{#if error}}
 <div class="alert alert-danger">
-  <h4>User Not Found</h4>
-  <p>User with ID {{userId}} does not exist.</p>
+  <h4 class="alert-heading">User Not Found</h4>
+  <p class="mb-3">We couldn't find a profile for {{#if userId}}ID {{userId}}{{else}}that link{{/if}}. Try picking someone from the directory.</p>
   <a href="#user_list" class="btn btn-primary">Back to User List</a>
 </div>
 {{else}}
-<div class="card">
-  <div class="card-header">
-    <div class="d-flex justify-content-between align-items-center">
-      <div>
-        <h2 class="mb-0">{{user.name}}</h2>
-        <small class="text-muted">{{user.email}}</small>
-      </div>
-      <a href="#user_list" class="btn btn-sm btn-outline-secondary">← Back to List</a>
+<div class="card shadow-sm">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <div>
+      <h2 class="h4 mb-1">{{user.name}}</h2>
+      <small class="text-muted">{{user.email}}</small>
     </div>
+    <a href="#user_list" class="btn btn-sm btn-outline-secondary">← Back to List</a>
   </div>
+
   <div class="card-body">
-    <!-- Sub-navigation tabs -->
     <ul class="nav nav-tabs mb-3">
       <li class="nav-item">
-        <a class="nav-link" href="#user/{{userId}}/info">Info</a>
+        <a class="nav-link {{#eq activeSection 'info'}}active{{/eq}}" data-route="info" href="#user/{{userId}}/info">Info</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#user/{{userId}}/settings">Settings</a>
+        <a class="nav-link {{#eq activeSection 'settings'}}active{{/eq}}" data-route="settings" href="#user/{{userId}}/settings">Settings</a>
       </li>
     </ul>
 
-    <!-- Nested switch for user sub-pages -->
     <div data-component="user_switch" data-default="user_info"></div>
   </div>
 </div>

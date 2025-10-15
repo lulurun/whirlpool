@@ -1,6 +1,6 @@
 <div>
   <h4>User Preferences</h4>
-  <p class="text-muted">Manage settings for User #{{userId}}</p>
+  <p class="text-muted">Manage settings for User #{{userId}}. Every tweak is echoed to the console so you can trace interactions.</p>
 
   <div class="mt-4">
     {{#settings}}
@@ -20,7 +20,7 @@
         {{#eq type "select"}}
         <select class="form-select" data-setting="{{name}}">
           {{#options}}
-          <option>{{.}}</option>
+          <option value="{{.}}" {{#eq . ../value}}selected{{/eq}}>{{.}}</option>
           {{/options}}
         </select>
         {{/eq}}

@@ -1,27 +1,54 @@
-import { getUser, getUserId } from '../users.js';
+import { getUser, getUserId, getUserSection } from '../users.js';
 
 W.component('user_page', {
   init: function() {
     this.userId = getUserId();
+    this.section = getUserSection();
     this.app.nav.on(() => {
       const userId = getUserId();
-      if (!userId || userId === this.userId) return;
-      this.userId = userId;
-      this.load();
+      const nextSection = getUserSection();
+      if (!userId && !this.userId) return;
+      if (userId !== this.userId || nextSection !== this.section) {
+        this.userId = userId;
+        this.section = nextSection;
+        this.load();
+      }
     }, this);
   },
 
   getData: function(cb) {
-    const user = getUser(this.userId);
+    const userId = this.userId;
+    if (!userId) {
+      cb({ error: true, userId: null });
+      return;
+    }
 
+    const user = getUser(userId);
     if (!user) {
-      cb({ error: true, userId: this.userId });
+      cb({ error: true, userId });
       return;
     }
 
     cb({
-      user: user,
-      userId: this.userId
+      user,
+      userId,
+      activeSection: this.section || 'info',
     });
+  },
+
+  rendered: function(cb) {
+    if (!this.el.querySelector('[data-route]')) {
+      if (cb) cb();
+      return;
+    }
+
+    const active = this.section || 'info';
+    const navLinks = this.el.querySelectorAll('[data-route]');
+    navLinks.forEach((link) => {
+      const isActive = link.getAttribute('data-route') === active;
+      link.classList.toggle('active', isActive);
+    });
+
+    if (cb) cb();
   }
 });
