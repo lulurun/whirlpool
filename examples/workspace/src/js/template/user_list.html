@@ -1,0 +1,17 @@
+<div class="card shadow-sm border-0 h-100">
+  <div class="card-header bg-white">
+    <h5 class="mb-0">Team Members</h5>
+  </div>
+  <div class="list-group list-group-flush">
+    {{#users}}
+    <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-start {{#if active}}active{{/if}}" data-user-link="{{profileHash}}">
+      <div class="me-2 text-start">
+        <div class="fw-semibold">{{name}}</div>
+        <div class="small text-muted">{{email}}</div>
+        <div class="small text-muted">{{role}} • {{region}}</div>
+      </div>
+      <span class="badge rounded-pill text-bg-{{statusTheme}} align-self-center">{{statusLabel}}</span>
+    </button>
+    {{/users}}
+  </div>
+</div>

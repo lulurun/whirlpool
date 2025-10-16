@@ -1,0 +1,42 @@
+{{#fields}}
+<div class="mb-3">
+  <div class="d-flex align-items-start gap-2">
+    <div class="flex-grow-1">
+      <label class="form-label fw-semibold">{{name}}</label>
+      {{#eq type "value"}}
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        value="{{value}}"
+        data-field="{{name}}"
+        data-value-type="{{valueType}}"
+      />
+      {{/eq}}
+      {{#eq type "object"}}
+      <div class="border rounded p-3 bg-light" data-component="settings_form" data-path="{{path}}"></div>
+      {{/eq}}
+    </div>
+    <button type="button" class="btn btn-outline-danger btn-sm" data-role="remove-field" data-remove="{{name}}">×</button>
+  </div>
+  {{#eq valueType "array"}}
+  <div class="form-text">Comma-separated list</div>
+  {{/eq}}
+</div>
+{{/fields}}
+
+<div class="bg-light border rounded p-3 mb-3" data-role="add-field-row">
+  <div class="row g-2 align-items-center">
+    <div class="col-md-6">
+      <input type="text" class="form-control form-control-sm" placeholder="Field key" data-role="new-field-name" />
+    </div>
+    <div class="col-md-4">
+      <select class="form-select form-select-sm" data-role="new-field-type">
+        <option value="value" selected>value</option>
+        <option value="object">object</option>
+      </select>
+    </div>
+    <div class="col-md-2 d-grid">
+      <button type="button" class="btn btn-primary btn-sm" data-role="add-field">Add</button>
+    </div>
+  </div>
+</div>

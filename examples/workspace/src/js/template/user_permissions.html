@@ -1,0 +1,20 @@
+{{#if missing}}
+<p class="text-muted">User not available.</p>
+{{else}}
+<div class="border rounded p-3">
+  <h6 class="text-uppercase text-muted small">Feature Access</h6>
+  <p class="small text-muted">Toggle capabilities for {{user.name}}. Changes take effect immediately and are logged to the activity feed.</p>
+
+  {{#features}}
+  <div class="form-check form-switch mb-3">
+    <input class="form-check-input" type="checkbox" role="switch" id="{{inputId}}" data-permission-toggle="{{key}}" {{#if enabled}}checked{{/if}} />
+    <label class="form-check-label" for="{{inputId}}">
+      <strong>{{label}}</strong>
+      <span class="d-block small text-muted">{{description}}</span>
+    </label>
+  </div>
+  {{/features}}
+
+  <button id="savePermissions" class="btn btn-outline-primary btn-sm">Save Permissions</button>
+</div>
+{{/if}}
