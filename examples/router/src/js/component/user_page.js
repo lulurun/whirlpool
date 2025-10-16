@@ -6,6 +6,7 @@ W.component('user_page', {
     this.section = getUserSection();
     this.app.nav.on(() => {
       const userId = getUserId();
+      if (!userId) return;
       const nextSection = getUserSection();
       if (!userId && !this.userId) return;
       if (userId !== this.userId || nextSection !== this.section) {
