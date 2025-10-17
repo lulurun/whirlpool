@@ -1,0 +1,139 @@
+<div class="card shadow-lg border-0">
+  <div class="card-header bg-gradient bg-secondary text-uppercase small text-muted">Order Book</div>
+  <div class="card-body p-0">
+    <div class="orderbook">
+      <div class="orderbook__asks">
+        <div class="orderbook__header text-danger">Asks</div>
+        {{#asks}}
+        <div class="orderbook__row">
+          <div class="orderbook__action">
+            {{#if isBest}}
+            <button
+              type="button"
+              class="btn btn-outline-success btn-sm w-100"
+              data-action="order"
+              data-side="buy"
+              data-type="market"
+              data-price="{{price}}"
+              data-size="{{size}}"
+            >Buy @ Market</button>
+            {{/if}}
+          </div>
+          <div class="orderbook__cell text-end text-danger">{{displayPrice}}</div>
+          <div class="orderbook__cell text-end text-muted">{{displaySize}}</div>
+          <div class="orderbook__action">
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm w-100"
+              data-action="order"
+              data-side="sell"
+              data-type="limit"
+              data-price="{{price}}"
+              data-size="{{size}}"
+            >Sell</button>
+          </div>
+        </div>
+        {{/asks}}
+      </div>
+
+      <div class="orderbook__mid text-center">
+        <span class="badge bg-light text-dark">Mid {{midpoint}}</span>
+      </div>
+
+      <div class="orderbook__bids">
+        <div class="orderbook__header text-success">Bids</div>
+        {{#bids}}
+        <div class="orderbook__row">
+          <div class="orderbook__action">
+            <button
+              type="button"
+              class="btn btn-outline-success btn-sm w-100"
+              data-action="order"
+              data-side="buy"
+              data-type="limit"
+              data-price="{{price}}"
+              data-size="{{size}}"
+            >Buy</button>
+          </div>
+          <div class="orderbook__cell text-end text-success">{{displayPrice}}</div>
+          <div class="orderbook__cell text-end text-muted">{{displaySize}}</div>
+          <div class="orderbook__action">
+            {{#if isBest}}
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm w-100"
+              data-action="order"
+              data-side="sell"
+              data-type="market"
+              data-price="{{price}}"
+              data-size="{{size}}"
+            >Sell @ Market</button>
+            {{else}}
+            <div class="orderbook__spacer"></div>
+            {{/if}}
+          </div>
+        </div>
+        {{/bids}}
+      </div>
+    </div>
+  </div>
+
+  <div class="card-footer bg-dark bg-opacity-75">
+    <h6 class="text-uppercase small text-muted mb-2">Recent Orders</h6>
+    {{#recentOrders}}
+    <div class="d-flex justify-content-between small py-1 border-bottom border-secondary">
+      <span class="text-muted">#{{id}} • {{displayTime}}</span>
+      <span class="text-light">{{side}} • {{type}} • {{displayPrice}} • {{displaySize}}</span>
+    </div>
+    {{/recentOrders}}
+    {{#unless recentOrders.length}}
+    <p class="text-muted small mb-0">No orders yet. Use the buttons above to submit synthetic orders.</p>
+    {{/unless}}
+  </div>
+</div>
+
+<style>
+.orderbook {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+.orderbook__header {
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.orderbook__row {
+  display: grid;
+  grid-template-columns: 4rem 1fr 1fr 4rem;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  gap: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.orderbook__row:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+.orderbook__cell {
+  font-family: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.85rem;
+}
+.orderbook__action {
+  display: flex;
+  justify-content: center;
+}
+.orderbook__action .btn {
+  font-size: 0.7rem;
+}
+.orderbook__spacer {
+  width: 100%;
+  height: 1.9rem;
+}
+.orderbook__mid {
+  padding: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+</style>
