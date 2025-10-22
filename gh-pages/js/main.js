@@ -9,7 +9,7 @@ $(document).ready(function() {
         })
         .catch(error => {
             console.error('Error fetching file size:', error);
-            $('.file-size').text('~7KB');
+            $('.file-size').text('<10KB');
         });
 })
 
