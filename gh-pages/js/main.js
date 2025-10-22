@@ -1,3 +1,18 @@
+// Fetch and display file size
+$(document).ready(function() {
+    // Fetch whirlpool.min.js size and update all placeholders
+    fetch('https://raw.githubusercontent.com/lulurun/whirlpool/refs/heads/main/dist/whirlpool.min.js')
+        .then(response => response.blob())
+        .then(blob => {
+            const sizeInKB = (blob.size / 1024).toFixed(1);
+            $('.file-size').text(sizeInKB + 'KB');
+        })
+        .catch(error => {
+            console.error('Error fetching file size:', error);
+            $('.file-size').text('~7KB');
+        });
+})
+
 // Smooth scrolling for navigation links
 $(document).ready(function() {
     // Smooth scroll for anchor links
