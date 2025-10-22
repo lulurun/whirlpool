@@ -1,0 +1,8 @@
+<div class="list-group">
+  {{#steps}}
+  <a href="#{{id}}" class="list-group-item list-group-item-action step-link {{#if isActive}}active{{/if}}" data-step-id="{{id}}">
+    <h6 class="mb-1">{{title}}</h6>
+    <small class="{{#if isActive}}text-white{{else}}text-muted{{/if}}">{{description}}</small>
+  </a>
+  {{/steps}}
+</div>

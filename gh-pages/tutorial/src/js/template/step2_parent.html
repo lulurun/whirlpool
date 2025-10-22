@@ -1,0 +1,33 @@
+<div>
+  <h3 class="mb-3">{{title}}</h3>
+  <p class="text-muted mb-4">{{description}}</p>
+
+  <div class="alert alert-info">
+    <strong>What you'll learn:</strong>
+    <ul class="mb-0">
+      <li>How to manage internal component state</li>
+      <li>How to define actions within the rendered() method</li>
+      <li>How to update the UI reactively when state changes</li>
+    </ul>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-8 offset-md-2">
+      <div class="card">
+        <div class="card-header bg-primary text-white">Counter Component</div>
+        <div class="card-body">
+          <div data-component="step2_counter"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 p-3 bg-light rounded">
+    <h5>Key Concepts:</h5>
+    <ul>
+      <li><strong>Internal State:</strong> Components can hold state in instance variables (e.g., <code>this.count = 0</code>)</li>
+      <li><strong>Event Handlers:</strong> Use arrow functions in <code>rendered()</code> to preserve component context</li>
+      <li><strong>Reactive Updates:</strong> Call <code>this.load()</code> to re-render the component with new data</li>
+    </ul>
+  </div>
+</div>

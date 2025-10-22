@@ -1,0 +1,16 @@
+<div>
+  <h5 class="mb-3">{{title}}</h5>
+  <ul class="list-group mb-3">
+    {{#items}}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      {{name}}
+      <span class="badge bg-primary rounded-pill">{{value}}</span>
+    </li>
+    {{/items}}
+  </ul>
+
+  <div class="border-top pt-3">
+    <p class="text-muted small mb-2"><strong>Nested Component 2:</strong></p>
+    <div data-component="step1_component2"></div>
+  </div>
+</div>
