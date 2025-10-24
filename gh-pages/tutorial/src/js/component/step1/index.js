@@ -1,4 +1,4 @@
-W.component('step1_parent', {
+W.component('step1/index', {
   getData: function(cb) {
     cb({
       title: 'Step 1: Component Loading',

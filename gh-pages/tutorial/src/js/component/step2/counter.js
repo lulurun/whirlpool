@@ -1,4 +1,4 @@
-W.component('step2_counter', {
+W.component('step2/counter', {
   init: function() {
     // Initialize internal state
     this.count = 0;

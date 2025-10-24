@@ -1,4 +1,4 @@
-W.component('step3_event_counter', {
+W.component('step3/event_counter', {
   init: function() {
     this.eventCount = 0;
     this.lastClickNumber = 0;

@@ -1,4 +1,4 @@
-W.component('step3_message_display', {
+W.component('step3/message_display', {
   init: function() {
     this.message = 'Waiting for event...';
     this.timestamp = '';

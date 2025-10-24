@@ -1,4 +1,4 @@
-W.component('step4_item_form', {
+W.component('step4/item_form', {
   init: function() {
     // Subscribe to data changes to update form state
     this.app.data.on('items', (data) => {

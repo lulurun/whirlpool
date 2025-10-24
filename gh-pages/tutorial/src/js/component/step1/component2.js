@@ -1,4 +1,4 @@
-W.component('step1_component2', {
+W.component('step1/component2', {
   getData: function(cb) {
     cb({
       message: 'This is Component 2',

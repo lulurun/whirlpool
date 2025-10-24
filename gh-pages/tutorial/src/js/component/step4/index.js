@@ -1,4 +1,4 @@
-W.component('step4_parent', {
+W.component('step4/index', {
   getData: function(cb) {
     cb({
       title: 'Step 4: Shared Data with app.data',

@@ -1,4 +1,4 @@
-W.component('step4_item_list', {
+W.component('step4/item_list', {
   init: function() {
     // Subscribe to items data changes
     this.app.data.on('items', (data) => {

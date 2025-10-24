@@ -1,4 +1,4 @@
-W.component('step2_parent', {
+W.component('step2/index', {
   getData: function(cb) {
     cb({
       title: 'Step 2: Counter',

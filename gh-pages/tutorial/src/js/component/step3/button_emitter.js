@@ -1,4 +1,4 @@
-W.component('step3_button_emitter', {
+W.component('step3/button_emitter', {
   init: function() {
     this.clickCount = 0;
   },

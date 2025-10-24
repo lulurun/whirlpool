@@ -1,4 +1,4 @@
-W.component('step3_parent', {
+W.component('step3/index', {
   getData: function(cb) {
     cb({
       title: 'Step 3: Event Communication with app.ev',

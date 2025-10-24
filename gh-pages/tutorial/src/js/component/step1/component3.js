@@ -1,4 +1,4 @@
-W.component('step1_component3', {
+W.component('step1/component3', {
   getData: function(cb) {
     cb({
       title: 'Hello from Component 3 (reusing Component 1)',
