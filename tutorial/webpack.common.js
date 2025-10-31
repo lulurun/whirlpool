@@ -6,7 +6,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const distDir = './public';
-const whirlpoolDist = path.resolve(__dirname, '../../dist/whirlpool.min.js');
+const whirlpoolSrc = path.resolve(__dirname, './whirlpool.min.js');
 
 module.exports = {
   entry: [
@@ -27,7 +27,7 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: whirlpoolDist,
+          from: whirlpoolSrc,
           to: path.resolve(__dirname, distDir, 'whirlpool.min.js'),
         },
       ],

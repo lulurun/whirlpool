@@ -1,5 +1,11 @@
+// Import Handlebars helpers
+import './helpers/eq.js';
+
 // Import navigation component
 import './component/tutorial_nav.js';
+
+// Import source viewer component
+import './component/source_viewer.js';
 
 // Import Step 1 components
 import './component/step1/index.js';
