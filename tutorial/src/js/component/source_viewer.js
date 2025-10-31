@@ -151,8 +151,12 @@ const STEP_FILES = {
 };
 
 W.component('source_viewer', {
+  init: function() {
+    this.step = this.el.getAttribute('data-step');
+  },
+
   getData: function(cb) {
-    const step = this.props.step;
+    const step = this.step;
     const files = STEP_FILES[step] || [];
 
     cb({
