@@ -60,7 +60,10 @@ module.exports = {
       {
         test: /\.html$/,
         use: {
-          loader: 'handlebars-loader'
+          loader: 'handlebars-loader',
+          options: {
+            helperDirs: [path.resolve(__dirname, 'src/js/helpers')]
+          }
         }
       },
       {

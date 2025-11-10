@@ -9,7 +9,7 @@
         <label for="file-select">Select file: </label>
         <select id="file-select" data-event="change:selectFile">
           {{#each loadedFiles}}
-            <option value="{{@index}}" {{#if (eq @index ../currentFileIndex)}}selected{{/if}}>
+            <option value="{{@index}}">
               {{label}}
             </option>
           {{/each}}

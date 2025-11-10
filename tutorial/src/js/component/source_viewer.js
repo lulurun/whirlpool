@@ -152,28 +152,20 @@ const STEP_FILES = {
 
 W.component('source_viewer', {
   init: function() {
-    this.step = this.el.getAttribute('data-step');
-  },
-
-  getData: function(cb) {
-    const step = this.step;
+    const step = this.el.getAttribute('data-step');
     const files = STEP_FILES[step] || [];
+    // const baseUrl = 'https://lulurun.github.io/whirlpool/';
+    const baseUrl = '/whirlpool/';
+    // const baseUrl = '/';
 
-    cb({
+    this.data = {
       step: step,
       files: files,
       loadedFiles: [],
       currentFileIndex: 0,
       loading: true
-    });
-  },
+    };
 
-  rendered: function(cb) {
-    const self = this;
-    const baseUrl = 'https://lulurun.github.io/whirlpool/';
-
-    // Fetch all source files
-    const files = this.data.files;
     const promises = files.map(file => {
       return fetch(baseUrl + file.path)
         .then(response => response.text())
@@ -188,21 +180,17 @@ W.component('source_viewer', {
     });
 
     Promise.all(promises).then(loadedFiles => {
-      self.update({
-        loadedFiles: loadedFiles,
-        loading: false,
-        currentFileIndex: 0
-      });
+      this.data.loadedFiles = loadedFiles;
+      this.data.loading = false;
+      this.load();
     });
-
-    cb();
   },
 
-  actions: {
-    selectFile: function(index) {
-      this.update({
-        currentFileIndex: parseInt(index)
-      });
-    }
-  }
+  getData: function(cb) {
+    cb(this.data);
+  },
+
+  rendered: function(cb) {
+    cb();
+  },
 });
