@@ -2,9 +2,7 @@ import { FORM_DATA_EVENT, formData as sharedFormData } from '../shared/formState
 
 W.component('preview', {
   init: function() {
-    this.data = sharedFormData;
-    this.app.data.on(FORM_DATA_EVENT, (payload) => {
-      this.data = payload;
+    this.app.ev.on(FORM_DATA_EVENT, () => {
       if (this.complete) {
         this.load();
       }
@@ -12,6 +10,6 @@ W.component('preview', {
   },
 
   getData: function(cb) {
-    cb(JSON.stringify(this.data, null, 2));
+    cb(JSON.stringify(sharedFormData, null, 2));
   }
 });

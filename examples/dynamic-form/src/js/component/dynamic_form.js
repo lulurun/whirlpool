@@ -50,7 +50,7 @@ W.component('dynamic_form', {
     const $container = $(this.el);
 
     const emitChange = () => {
-      this.app.data.emit(FORM_DATA_EVENT, globalFormData);
+      this.app.ev.emit(FORM_DATA_EVENT);
     };
 
     $container.find('[data-role="add-field"]').on('click', (event) => {
