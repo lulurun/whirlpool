@@ -13,7 +13,7 @@ export class Component {
     this.loadCallbacks = [];
   }
 
-  loadChildren(cb, param) {
+  loadChildren(cb) {
     const els = this.el.querySelectorAll('[' + COMPONENT_ATTR + ']');
     if (!els || !els.length)
       return cb();
@@ -28,7 +28,7 @@ export class Component {
         c.load(() => {
           if (++nbComplete === len)
             cb();
-        }, param);
+        });
       } else {
         if (++nbComplete === len)
         cb();
@@ -36,11 +36,10 @@ export class Component {
     });
   }
 
-  load(cb, param) {
+  load(cb) {
     if (cb) this.loadCallbacks.push(cb);
     if (!this.complete) return;
 
-    param = param || {};
     this.complete = false;
     this.getData(data => {
       this.getTemplate((template) => {
@@ -54,14 +53,12 @@ export class Component {
         this.rendered(() => {
           this.loadChildren(() => {
             this.complete = true;
-            this.loadCallbacks.forEach((cb) => {
-              cb();
-            });
+            this.loadCallbacks.forEach(cb);
             this.loadCallbacks = [];
-          }, param)
-        }, param);
+          })
+        });
       });
-    }, param);
+    });
   }
 
   destroyed() {
@@ -93,24 +90,16 @@ export function registerComponent(name, def) {
   const cls = class extends Component {
     constructor(name, el, app, parent) {
       super(name, el, app, parent);
+      if (app.template) {
+        this.getTemplate = (cb) => {
+          app.template(this.name, cb);
+        };
+      }
       if (!def) {
-        if (app.getTemplate) {
-          this.getTemplate = (cb) => {
-            app.getTemplate(this.name, cb);
-          };
-        }
         return;
       }
       if (def.init) {
         def.init.bind(this)();
-      }
-
-      if (def.template) {
-        this.template = def.template;
-      } else if (app.getTemplate) {
-        this.getTemplate = (cb) => {
-          app.getTemplate(this.name, cb);
-        };
       }
       if (def.getData) {
         this.getData = def.getData.bind(this);
