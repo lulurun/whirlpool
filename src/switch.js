@@ -26,7 +26,7 @@ export class Switch {
     return this.knownComponents[componentKey];
   }
 
-  load(cb, param) {
+  load(cb) {
     const componentName = this.getComponentName(location.hash);
     if (!componentName) return;
     if (this.currentComponent && this.currentComponent.name === componentName) return;
@@ -38,7 +38,7 @@ export class Switch {
       this.currentComponent = c;
       this.el.setAttribute(CURRENT_ATTR, componentName);
       if (cb) cb();
-    }, param);
+    });
   }
 
   destroyed() {
