@@ -8,28 +8,28 @@ class EventBus {
     this.events = new Map();
   }
 
-  getOrCreate(event) {
-    if (!this.events.has(event)) {
-      this.events.set(event, new Map());
+  getOrCreate(evName) {
+    if (!this.events.has(evName)) {
+      this.events.set(evName, new Map());
     }
-    return this.events.get(event);
+    return this.events.get(evName);
   }
 
-  emit(event, data, emitter) {
-    const listeners = this.getOrCreate(event);
+  emit(evName, data, emitter) {
+    const listeners = this.getOrCreate(evName);
     for (let handler of listeners.values()) {
       handler(data, emitter);
     }
   }
 
-  on(event, handler, listener) {
-    const listeners = this.getOrCreate(event);
+  on(evName, handler, listener) {
+    const listeners = this.getOrCreate(evName);
     listeners.set(listener, handler);
   }
 
-  off(event, listener) {
-    if (!this.events.has(event)) return;
-    const listeners = this.events.get(event);
+  off(evName, listener) {
+    if (!this.events.has(evName)) return;
+    const listeners = this.events.get(evName);
     listeners.delete(listener);
   }
 
@@ -44,6 +44,7 @@ class Data {
   constructor(ev) {
     this.ev = ev;
     this.store = new Map();
+    this.pending = new Map();
   }
 
   get(dataKey) {
@@ -57,33 +58,44 @@ class Data {
     });
   }
 
-  _fetch(dataKey, cb) {
+  _fetch(dataKey, handler) {
     const def = this.store.get(dataKey);
+
+    // If already fetching, queue the handler
+    if (this.pending.has(dataKey)) {
+      this.pending.get(dataKey).push(handler);
+      return;
+    }
+
+    // Start new fetch
+    this.pending.set(dataKey, [handler]);
     def.fetch((data) => {
       def.value = data;
-      cb(data);
+
+      // Call all queued handlers
+      const handlers = this.pending.get(dataKey);
+      this.pending.delete(dataKey);
+      handlers.forEach(h => h(data));
     });
   }
 
-  refresh(dataKey) {
-    this._fetch(dataKey, (data) => {
-      this.ev.emit(DATA_UPDATED_EVENT + dataKey, data, this);
-    })
-  }
-
-  fetch(dataKeys, cb) {
-    const total = dataKeys.length;
+  fetch(dataKeys, handler) {
+    const keys = Array.isArray(dataKeys) ? dataKeys : [dataKeys];
+    const total = keys.length;
     const results = {};
-    dataKeys.forEach((dataKey) => {
+    keys.forEach((dataKey) => {
       this._fetch(dataKey, (data) => {
         results[dataKey] = data;
-        if (Object.keys(results).length === total) cb(results);
+        if (Object.keys(results).length === total && handler) {
+          const result = Array.isArray(dataKeys) ? results : results[dataKeys];
+          handler(result);
+        }
       });
     });
   }
 
-  on(dataKey, cb, listener) {
-    this.ev.on(DATA_UPDATED_EVENT + dataKey, cb, listener);
+  on(dataKey, handler, listener) {
+    this.ev.on(DATA_UPDATED_EVENT + dataKey, handler, listener);
   }
 
   emit(dataKey, data, emitter) {
@@ -99,8 +111,8 @@ class Nav {
     });
   }
 
-  on(cb, listener) {
-    this.ev.on(POPSTATE_EVENT, cb, listener);
+  on(handler, listener) {
+    this.ev.on(POPSTATE_EVENT, handler, listener);
   }
 }
 
