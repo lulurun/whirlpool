@@ -1,32 +1,99 @@
-# Shopping Cart Example - Data Sharing with app.data
+# Shopping Cart Example
 
-This example demonstrates how multiple components can share data using the `app.data` API in Whirlpool framework.
+This example demonstrates a shopping cart application with shared data management featuring:
 
-## Key Concepts Demonstrated
+- **Centralized data management**: Multiple components share data using `app.data`
+- **Reactive updates**: Components automatically reload when data changes
+- **Add to cart**: Click product buttons to add items to the cart
+- **Cart management**: View cart summary, adjust quantities, and remove items
+- **Real-time statistics**: Stats update automatically based on products and cart data
+
+## Running the Example
+
+1. Navigate to the example directory:
+   ```bash
+   cd examples/shopping-cart
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm start
+   ```
+
+4. The app will automatically open in your browser at http://localhost:8080
+
+## Building for Production
+
+```bash
+npm run build
+```
+
+This will create optimized bundles in the `public/` directory.
+
+## Structure
+
+This example follows the Whirlpool boilerplate structure:
+
+```
+examples/shopping-cart/
+├── src/
+│   ├── html/
+│   │   └── index.html          # Main HTML template
+│   └── js/
+│       ├── component/
+│       │   ├── product_list.js # Product listing component
+│       │   ├── cart_summary.js # Cart summary component
+│       │   ├── cart_details.js # Cart details component
+│       │   └── stats.js        # Statistics component
+│       ├── template/
+│       │   ├── product_list.html
+│       │   ├── cart_summary.html
+│       │   ├── cart_details.html
+│       │   └── stats.html
+│       ├── data.js             # Shared data sources
+│       └── index.js            # App entry point
+├── public/                     # Built files (generated)
+├── webpack.common.js           # Webpack common config
+├── webpack.dev.js              # Webpack dev config
+├── webpack.prod.js             # Webpack prod config
+└── package.json                # Dependencies and scripts
+```
+
+## How Data Sharing Works in Whirlpool
 
 ### 1. Registering Shared Data Sources
 
-In `index.js`, we register two shared data sources:
+The `app.data` API allows you to register centralized data sources that multiple components can access. In `data.js`, register data sources using `app.data.register()`:
 
 ```javascript
 // Products data - shared across multiple components
 app.data.register('products', (cb) => {
-  // Fetch function - simulates API call
+  // Fetch function - can be async, API call, etc.
   setTimeout(() => {
-    const products = [...];
+    const products = [
+      { id: 1, name: 'Laptop', price: 999 },
+      { id: 2, name: 'Mouse', price: 25 }
+    ];
     cb(products);
   }, 100);
 });
 
 // Shopping cart data - shared across multiple components
 app.data.register('cart', (cb) => {
-  cb([]); // Initialize empty cart
+  cb([]); // Initialize with empty cart
 });
 ```
 
+The first parameter is the data source name (key), and the second is a fetch function that provides the data via callback.
+
 ### 2. Subscribing to Data Changes
 
-Each component subscribes to the data it needs in its `init()` method:
+Components subscribe to data sources in their `init()` method using `app.data.on()`:
 
 ```javascript
 W.component('cart_summary', {
@@ -40,78 +107,53 @@ W.component('cart_summary', {
 });
 ```
 
+- **First parameter**: The data source key to subscribe to
+- **Second parameter**: Callback function that receives updated data
+- **Third parameter**: The listener (typically `this`) for cleanup purposes
+
+When subscribed data changes, the callback is automatically invoked, allowing the component to react (often by calling `this.load()` to re-render).
+
 ### 3. Emitting Data Changes
 
-When data changes, any component can emit the update using `app.data.emit()`:
+When any component modifies shared data, it should emit the change using `app.data.emit()`:
 
 ```javascript
-// In product_list component - add to cart
+// In product_list component - add item to cart
 const newCart = [...cart, newItem];
 
-// Emit cart change - all components listening to 'cart' will update
+// Emit cart change - all components listening to 'cart' will be notified
 this.app.data.emit('cart', newCart, this);
 ```
 
-### 4. Multiple Components Sharing Same Data
+- **First parameter**: The data source key
+- **Second parameter**: The updated data
+- **Third parameter**: The emitter (typically `this`) to identify which component triggered the change
 
-- **product_list** - Listens to both 'products' and 'cart' to show product availability and cart status
-- **cart_summary** - Listens to 'cart' to display item count and total price
-- **cart_details** - Listens to 'cart' to show cart items with quantity controls
-- **stats** - Listens to BOTH 'products' and 'cart' to calculate combined statistics
+All components subscribed to that data source will receive the update and can react accordingly.
 
-## Data Flow
+### 4. Multiple Components Sharing Data
 
-```
-User clicks "Add to Cart" in product_list
-  ↓
-product_list.rendered() handles click
-  ↓
-Updates cart data and calls: app.data.emit('cart', newCart, this)
-  ↓
-Framework notifies ALL subscribers of 'cart' data change
-  ↓
-cart_summary, cart_details, and stats all reload automatically
-  ↓
-UI updates across all components simultaneously
-```
+Multiple components can subscribe to the same data source, enabling synchronized UI updates:
 
-## Components Overview
+- **product_list**: Subscribes to `'products'` and `'cart'` to display products and show which items are in the cart
+- **cart_summary**: Subscribes to `'cart'` to display total items and price
+- **cart_details**: Subscribes to `'cart'` to show detailed cart items with controls
+- **stats**: Subscribes to both `'products'` and `'cart'` to calculate combined statistics
 
-### product_list
-- **Subscribes to:** 'products', 'cart'
-- **Emits:** 'cart' (when adding items)
-- **Purpose:** Display products and handle adding to cart
+When one component emits a data change, all subscribed components automatically receive the update.
 
-### cart_summary
-- **Subscribes to:** 'cart'
-- **Emits:** 'cart' (when clearing cart)
-- **Purpose:** Show cart totals and item count
+### 5. Component Lifecycle and Cleanup
 
-### cart_details
-- **Subscribes to:** 'cart'
-- **Emits:** 'cart' (when removing items or changing quantities)
-- **Purpose:** Display cart items with quantity controls
+The framework automatically cleans up data subscriptions when components are destroyed. This is why you pass `this` as the third parameter to `app.data.on()` - it allows the framework to track and remove subscriptions during component cleanup.
 
-### stats
-- **Subscribes to:** 'products', 'cart'
-- **Emits:** Nothing
-- **Purpose:** Calculate and display statistics from multiple data sources
+### 6. Data Flow Example
 
-## Running the Example
+Here's how data flows when a user adds a product to the cart:
 
-```bash
-cd examples/shopping-cart
-npm install
-npm start
-```
-
-Open browser to `http://localhost:8080` and watch the browser console to see data sharing in action!
-
-## Key Takeaways
-
-1. **Centralized State**: `app.data` provides a centralized way to manage shared state
-2. **Reactive Updates**: Components automatically reload when subscribed data changes
-3. **Decoupled Components**: Components don't need to know about each other - they only know about data keys
-4. **Multiple Subscribers**: Any number of components can subscribe to the same data
-5. **Multiple Data Sources**: Components can subscribe to multiple data sources (like 'stats' does)
-6. **Simple API**: Just three methods needed: `register()`, `on()`, and `emit()`
+1. User clicks "Add to Cart" button in `product_list` component
+2. Click handler in `product_list.rendered()` executes
+3. Handler updates cart data and calls `app.data.emit('cart', newCart, this)`
+4. Framework notifies all subscribers of the `'cart'` data change
+5. `cart_summary`, `cart_details`, and `stats` all receive the update
+6. Each subscribed component reloads automatically
+7. UI updates across all components simultaneously
