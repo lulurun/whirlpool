@@ -29,8 +29,6 @@ app.data.register('cart', (cb) => {
   cb(dataInterface.getCart());
 });
 
-// Fetch initial data before starting app
-app.data.fetch(['products', 'cart'], (results) => {
-  console.log('Initial data loaded:', results);
-  app.start(document.body);
-});
+// Start app immediately without fetching data
+// Components will fetch data in their init() methods
+app.start(document.body);

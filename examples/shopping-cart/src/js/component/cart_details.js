@@ -7,11 +7,21 @@ W.component('cart_details', {
       console.log('cart_details: cart updated', data);
       this.load();
     }, this);
+
+    // Fetch cart data
+    this.app.data.fetch(['cart']);
   },
 
   getData: function(cb) {
-    const cart = this.app.data.get('cart') || [];
-    cb({ items: cart });
+    const cart = this.app.data.get('cart');
+
+    // Check if data is loading (null means not yet fetched)
+    const isLoading = cart === null;
+
+    cb({
+      items: cart || [],
+      isLoading: isLoading
+    });
   },
 
   rendered: function(cb) {

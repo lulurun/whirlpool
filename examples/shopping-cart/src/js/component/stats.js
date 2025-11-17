@@ -11,11 +11,22 @@ W.component('stats', {
       console.log('stats: cart updated', data);
       this.load();
     }, this);
+
+    // Fetch both products and cart data
+    this.app.data.fetch(['products', 'cart']);
   },
 
   getData: function(cb) {
-    const products = this.app.data.get('products') || [];
-    const cart = this.app.data.get('cart') || [];
+    const products = this.app.data.get('products');
+    const cart = this.app.data.get('cart');
+
+    // Check if data is loading (null means not yet fetched)
+    const isLoading = products === null || cart === null;
+
+    if (isLoading) {
+      cb({ isLoading: true });
+      return;
+    }
 
     // Calculate statistics from both data sources
     const totalProducts = products.length;
@@ -27,6 +38,7 @@ W.component('stats', {
       : 0;
 
     cb({
+      isLoading: false,
       totalProducts: totalProducts,
       totalStock: totalStock,
       itemsInCart: itemsInCart,

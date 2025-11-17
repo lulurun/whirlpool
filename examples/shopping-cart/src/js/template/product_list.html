@@ -3,6 +3,14 @@
     <h5 class="mb-0">Products</h5>
   </div>
   <div class="card-body">
+    {{#if isLoading}}
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="text-muted mt-2">Loading products...</p>
+    </div>
+    {{else}}
     <div class="row">
       {{#products}}
       <div class="col-md-6 mb-3">
@@ -24,5 +32,6 @@
       </div>
       {{/products}}
     </div>
+    {{/if}}
   </div>
 </div>

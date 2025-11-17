@@ -13,11 +13,17 @@ W.component('product_list', {
       console.log('product_list: cart updated', data);
       this.load();
     }, this);
+
+    // Fetch products data
+    this.app.data.fetch(['products']);
   },
 
   getData: function(cb) {
     const products = this.app.data.get('products') || [];
     const cart = this.app.data.get('cart') || [];
+
+    // Check if data is loading
+    const isLoading = products.length === 0;
 
     // Enhance products with cart info
     const productsWithCartInfo = products.map(product => {
@@ -28,7 +34,10 @@ W.component('product_list', {
       };
     });
 
-    cb({ products: productsWithCartInfo });
+    cb({
+      products: productsWithCartInfo,
+      isLoading: isLoading
+    });
   },
 
   rendered: function(cb) {
