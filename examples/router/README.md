@@ -1,118 +1,12 @@
-# Whirlpool Router Example - User Preferences Manager
+# Router Example
 
-This example demonstrates how to use Whirlpool's **Switch** component for client-side routing, including **nested routing** with multiple switch levels.
+This example demonstrates a user preferences manager with the following features:
 
-## Features
-
-- **Hash-based routing** using Switch components
-- **Nested routing** - switches within switches
-- **Custom getComponentName()** logic for dynamic routes
-- **URL parameter extraction** from hash (e.g., user ID)
-- User management with list and detail views
-- Per-user settings and info pages
-- No page reloads - smooth SPA navigation
-
-## How It Works
-
-### Switch Component
-
-The Switch component acts as a router:
-
-1. **URL Hash Detection**: Listens to `popstate` events for hash changes
-2. **Component Mapping**: Maps hash values to component names via `knownComponents`
-3. **Component Loading**: Loads the appropriate component into the switch container
-4. **Component Destruction**: Destroys the previous component when switching
-
-## Routing Architecture
-
-This example uses **two levels of routing**:
-
-### Level 1: Main Switch (Top-level routes)
-
-```javascript
-W.switch('main_switch', {
-  knownComponents: {
-    'home': 'home_page',
-    'about': 'about_page',
-    'user_list': 'user_list'
-  },
-
-  getComponentName: function() {
-    const hash = location.hash;
-
-    // Check if it's a user detail page: #user/123/...
-    const userMatch = /^#user\/(\d+)/.exec(hash);
-    if (userMatch) {
-      return 'user_page';
-    }
-
-    // Default: extract first segment
-    const match = /^#([^\/]+)/.exec(hash);
-    const key = (match && match[1]) || '';
-    return this.knownComponents[key] || this.defaultComponentName;
-  }
-});
-```
-
-**Routes:**
-- `#home` → `home_page` component
-- `#about` → `about_page` component
-- `#user_list` → `user_list` component (shows all users)
-- `#user/123/...` → `user_page` component (user detail page)
-
-### Level 2: User Switch (Nested routes)
-
-The `user_page` component contains a **nested switch** for sub-pages:
-
-```javascript
-W.switch('user_switch', {
-  knownComponents: {
-    'info': 'user_info',
-    'settings': 'user_settings'
-  },
-
-  getComponentName: function() {
-    const hash = location.hash;
-
-    // Parse: #user/123/info -> extract "info"
-    const match = /^#user\/\d+\/([^\/]+)/.exec(hash);
-
-    if (match) {
-      const subPage = match[1];
-      return this.knownComponents[subPage] || this.defaultComponentName;
-    }
-
-    return this.defaultComponentName;
-  }
-});
-```
-
-**Nested Routes:**
-- `#user/1/info` → `user_info` component
-- `#user/1/settings` → `user_settings` component
-- `#user/2/info` → `user_info` component (different user)
-- `#user/2/settings` → `user_settings` component (different user)
-
-## URL Structure
-
-```
-#user_list                  → User list page
-#user/1/info               → User 1 - Info tab
-#user/1/settings           → User 1 - Settings tab
-#user/2/info               → User 2 - Info tab
-#user/2/settings           → User 2 - Settings tab
-```
-
-### How Parameters Are Extracted
-
-Components extract the user ID from the hash in their `init()` method:
-
-```javascript
-init: function() {
-  const match = /^#user\/(\d+)/.exec(location.hash);
-  this.userId = match ? parseInt(match[1]) : null;
-}
-```
+- **Hash-based routing**: Navigate between pages without reloading
+- **Nested routing**: Sub-routes within routes (e.g., user info and settings tabs)
+- **URL parameters**: Extract and use user ID from the URL hash
+- **Dynamic component loading**: Switch components based on URL patterns
+- **User management**: List view and per-user detail pages with tabs
 
 ## Running the Example
 
@@ -131,7 +25,7 @@ init: function() {
    npm start
    ```
 
-4. The app will open at http://localhost:8080
+4. The app will automatically open in your browser at http://localhost:8080
 
 ## Building for Production
 
@@ -139,81 +33,118 @@ init: function() {
 npm run build
 ```
 
-Output files will be in the `public/` directory.
+This will create optimized bundles in the `public/` directory.
 
-## Project Structure
+## Structure
+
+This example follows the Whirlpool boilerplate structure:
 
 ```
 examples/router/
 ├── src/
 │   ├── html/
-│   │   └── index.html                   # Main HTML with navigation
+│   │   └── index.html          # Main HTML template
 │   └── js/
 │       ├── switch/
-│       │   ├── main_switch.js           # Level 1: Main router
-│       │   └── user_switch.js           # Level 2: User sub-router
+│       │   ├── main_switch.js  # Main router switch
+│       │   └── user_switch.js  # Nested user router switch
 │       ├── component/
-│       │   ├── home_page.js             # Home page
-│       │   ├── about_page.js            # About page
-│       │   ├── user_list.js             # User list page
-│       │   ├── user_page.js             # User detail page (container)
-│       │   ├── user_info.js             # User info sub-page
-│       │   └── user_settings.js         # User settings sub-page
+│       │   ├── home_page.js    # Home page component
+│       │   ├── about_page.js   # About page component
+│       │   ├── user_list.js    # User list component
+│       │   ├── user_page.js    # User detail page component
+│       │   ├── user_info.js    # User info tab component
+│       │   └── user_settings.js # User settings tab component
 │       ├── template/
 │       │   ├── home_page.html
 │       │   ├── about_page.html
 │       │   ├── user_list.html
-│       │   ├── user_page.html           # Contains user_switch
+│       │   ├── user_page.html
 │       │   ├── user_info.html
 │       │   └── user_settings.html
-│       └── index.js                     # App entry point
-├── public/
-│   └── whirlpool.min.js                # Whirlpool framework
-├── package.json
-└── webpack configs
+│       └── index.js            # App entry point
+├── public/                     # Built files (generated)
+├── webpack.common.js           # Webpack common config
+├── webpack.dev.js              # Webpack dev config
+├── webpack.prod.js             # Webpack prod config
+└── package.json                # Dependencies and scripts
 ```
 
-## Key Concepts Demonstrated
+## How Routing Works in Whirlpool
 
-1. **Nested Routing**: Two-level switch hierarchy (main → user)
-2. **Custom getComponentName()**: Dynamic route parsing with regex
-3. **URL Parameters**: Extracting user ID from hash
-4. **Component Communication**: Passing context via hash parameters
-5. **Switch Registration**: Multiple switches in one app
-6. **Component Lifecycle**: Components destroyed on route change
-7. **Default Routes**: Fallback components for invalid URLs
+### 1. Application Entry Points
 
-## Navigation Flow
+**index.html**: The main HTML file for your application
+- Customize the `<body>` section based on your app's needs
+- The `<head>` and `<script>` sections should be sufficient for most cases - they include `whirlpool.js`
+- The app bundle JavaScript built by webpack will be automatically embedded by webpack
 
+**index.js**: The application entry point
+- Import all component JavaScript files here
+- Import all switch JavaScript files here
+- Import any utility JavaScript files defined by your app
+- The rest of the `index.js` boilerplate should be sufficient for most cases
+
+### 2. Switch Definition
+
+A Switch is a special component that acts as a router. Define switches with `W.switch('switchName', {...})`:
+
+- **`knownComponents`**: An object mapping hash fragments to component names. For example, `{'home': 'home_page'}` maps `#home` to the `home_page` component.
+
+- **`getComponentName()`**: A function that determines which component to load based on the current URL hash. This is called whenever the hash changes. Return the name of the component to load, or use `this.defaultComponentName` for fallback.
+
+- **`defaultComponentName`**: The component to load when no match is found. Defaults to the first component in `knownComponents`.
+
+### 3. Switch Instantiation
+
+To use a switch, place a `<div data-switch="switchName"></div>` element in your HTML:
+
+- The Whirlpool framework automatically detects these elements and instantiates the switches
+- When the URL hash changes, the switch evaluates `getComponentName()` to determine which component to load
+- The framework destroys the previous component and loads the new one into the switch container
+- Switches can be nested: a component loaded by one switch can contain another switch element for nested routing
+
+### 4. Custom Route Matching
+
+Use the `getComponentName()` method to implement custom routing logic:
+
+```javascript
+getComponentName: function() {
+  const hash = location.hash;
+
+  // Match patterns like #user/123
+  const userMatch = /^#user\/(\d+)/.exec(hash);
+  if (userMatch) {
+    return 'user_page';
+  }
+
+  // Extract first segment: #about → 'about'
+  const match = /^#([^\/]+)/.exec(hash);
+  const key = (match && match[1]) || '';
+  return this.knownComponents[key] || this.defaultComponentName;
+}
 ```
-User clicks "Users" nav link
-  → #user_list
-  → main_switch loads user_list component
-  → Shows list of users
 
-User clicks on "Alice Johnson"
-  → #user/1/info
-  → main_switch detects /user/\d+/ pattern
-  → main_switch loads user_page component
-  → user_page contains user_switch
-  → user_switch detects /info pattern
-  → user_switch loads user_info component
-  → Shows Alice's info
+### 5. Extracting URL Parameters
 
-User clicks "Settings" tab
-  → #user/1/settings
-  → main_switch still shows user_page (no change)
-  → user_switch detects /settings pattern
-  → user_switch swaps user_info → user_settings
-  → Shows Alice's settings
+Components can extract parameters from the URL hash in their `init()` method:
+
+```javascript
+init: function() {
+  const match = /^#user\/(\d+)/.exec(location.hash);
+  this.userId = match ? parseInt(match[1]) : null;
+}
 ```
 
-## Try It
+### 6. Nested Routing Example
 
-1. **User List**: Click "Users" to see all users
-2. **User Details**: Click on a user to view their profile
-3. **Sub-navigation**: Switch between Info and Settings tabs
-4. **Different Users**: Navigate to different users and see data updates
-5. **Browser Navigation**: Use back/forward buttons - routing works!
-6. **Page Refresh**: Refresh on any URL - current route is preserved
-7. **Console Logging**: Check console when changing settings
+This example demonstrates two-level routing:
+
+**Level 1** (main_switch): Routes like `#home`, `#about`, `#user_list`, `#user/123/...`
+- Maps simple hashes to pages
+- Detects user detail URLs and loads the `user_page` component
+
+**Level 2** (user_switch): Routes like `#user/123/info`, `#user/123/settings`
+- Nested inside the `user_page` component template
+- Handles sub-navigation within a user's detail page
+- Extracts the sub-page from the hash to determine which tab component to load
