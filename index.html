@@ -29,7 +29,6 @@
                     <li><a href="#features">Features</a></li>
                     <li><a href="#getting-started">Getting Started</a></li>
                     <li><a href="#examples">Examples</a></li>
-                    <li><a href="#docs">Documentation</a></li>
                     <li><a href="https://github.com/lulurun/whirlpool" target="_blank">GitHub</a></li>
                 </ul>
             </div>
@@ -168,70 +167,6 @@ npm start
 
             <div style="margin-top: 30px; text-align: center;">
                 <p>For more examples including trading and workspace apps, visit the <a href="https://github.com/lulurun/whirlpool/tree/main/examples" target="_blank">examples directory</a>.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Documentation Section -->
-    <section id="docs" class="documentation">
-        <div class="container">
-            <h2 class="section-title">Documentation</h2>
-            <div class="doc-links">
-                <div class="doc-item">
-                    <h3>Core Concepts & Deep Reference</h3>
-                    <p>Learn about the fundamental concepts and detailed API reference.</p>
-                    <a href="https://github.com/lulurun/whirlpool/blob/main/docs/reference.md" target="_blank">Read Documentation →</a>
-                </div>
-                <div class="doc-item">
-                    <h3>Contributor Guide</h3>
-                    <p>Want to contribute? Check out our contributor guide.</p>
-                    <a href="https://github.com/lulurun/whirlpool/blob/main/AGENTS.md" target="_blank">Contributor Guide →</a>
-                </div>
-                <div class="doc-item">
-                    <h3>Example Walkthroughs</h3>
-                    <p>Each example folder has its own README with detailed explanations.</p>
-                    <a href="https://github.com/lulurun/whirlpool/tree/main/examples" target="_blank">Browse Examples →</a>
-                </div>
-            </div>
-
-            <div class="api-cheatsheet">
-                <h3>Component API Cheatsheet</h3>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Concern</th>
-                            <th>Use this</th>
-                            <th>Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Register component</td>
-                            <td><code>W.component(name, definition)</code></td>
-                            <td>Lifecycles: <code>init</code>, <code>getData</code>, <code>rendered</code>, optional <code>cleanup</code>/<code>destroyed</code></td>
-                        </tr>
-                        <tr>
-                            <td>Trigger rerender</td>
-                            <td><code>this.load(next)</code></td>
-                            <td>Call after data mutation or when props change; optional callback when children finish</td>
-                        </tr>
-                        <tr>
-                            <td>Publish events</td>
-                            <td><code>this.app.ev.emit(event, payload, this)</code></td>
-                            <td>Subscribe with <code>this.app.ev.on(event, handler, this)</code> and clean via <code>this.app.ev.remove(this)</code></td>
-                        </tr>
-                        <tr>
-                            <td>Shared state</td>
-                            <td><code>app.data.register(key, fetchFn)</code> / <code>app.data.emit(key, value, this)</code></td>
-                            <td>Fetch multiple keys with <code>app.data.fetch([...], cb)</code>; listeners respond via <code>app.data.on</code></td>
-                        </tr>
-                        <tr>
-                            <td>Navigation</td>
-                            <td><code>this.app.nav.on(handler, this)</code></td>
-                            <td>Works with hash/popstate routing from switches</td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
         </div>
     </section>
