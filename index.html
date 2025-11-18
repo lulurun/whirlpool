@@ -30,7 +30,7 @@
                     <li><a href="#getting-started">Getting Started</a></li>
                     <li><a href="#examples">Examples</a></li>
                     <li><a href="#docs">Documentation</a></li>
-                    <li><a href="https://github.com/anthropics/whirlpool" target="_blank">GitHub</a></li>
+                    <li><a href="https://github.com/lulurun/whirlpool" target="_blank">GitHub</a></li>
                 </ul>
             </div>
         </div>
@@ -48,7 +48,7 @@
                 </p>
                 <div class="hero-buttons">
                     <a href="#getting-started" class="btn btn-primary btn-lg">Get Started</a>
-                    <a href="https://github.com/anthropics/whirlpool" class="btn btn-default btn-lg" target="_blank">View on GitHub</a>
+                    <a href="https://github.com/lulurun/whirlpool" class="btn btn-default btn-lg" target="_blank">View on GitHub</a>
                 </div>
                 <div class="hero-stats">
                     <div class="stat">
@@ -104,9 +104,9 @@
                 <div class="col-md-6">
                     <div class="course-card">
                         <h3>Very Quick Start</h3>
-                        <p>All <a href="#examples">examples</a> were built by Claude Code and Codex from their <code>spec.md</code> files. The <a href="https://github.com/lulurun/whirlpool/tree/main/examples/todo" target="_blank">todo example</a> includes only a spec.md—try building it yourself with an AI assistant!</p>
+                        <p>All <a href="#examples">examples</a> were built by Claude Code and Codex from their <code>spec.md</code> files. The <a href="https://github.com/lulurun/whirlpool/tree/main/examples/99-todo" target="_blank">99-todo example</a> includes only a spec.md—try building it yourself with an AI assistant!</p>
                         <p><strong>How to try:</strong></p>
-                        <pre><code>cd examples/todo
+                        <pre><code>cd examples/99-todo
 # Run Claude Code or similar AI assistant, then say:
 # "Please learn Whirlpool from the repo src/ and
 # examples/, then read spec.md and build the app
@@ -114,7 +114,7 @@
 
 # Follow the AI assistant's instructions (mostly
 # just hit Enter). The source code will be generated
-# in the todo folder, and the AI will show you the
+# in the 99-todo folder, and the AI will show you the
 # command to view the app in your browser.</code></pre>
                     </div>
                 </div>
@@ -122,7 +122,7 @@
                     <div class="course-card">
                         <h3>Quick Start</h3>
                         <p>Get hands-on with Whirlpool's simple component API. Install, build, and start creating modular web applications.</p>
-                        <p><strong>Here is a <a href="tutorial/public/index.html" target="_blank">tutorial</a> to start with</strong>, or you can have a look at the <a href="#examples">example gallery</a> below.</p>
+                        <p><strong>Check out the <a href="#examples">example gallery</a> below to get started.</strong></p>
                     </div>
                 </div>
             </div>
@@ -134,7 +134,7 @@
         <div class="container">
             <h2 class="section-title">Example Gallery</h2>
 
-            <p>Go to each example folder and run these commands to see the example working in a browser:</p>
+            <p>Core framework feature examples. Go to each example folder and run these commands to see it in action:</p>
             <div class="install-section">
                 <pre><code>npm install
 npm run build
@@ -143,36 +143,31 @@ npm start
             </div>
 
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="example-card">
-                        <h3>Todo App</h3>
-                        <p>New productivity demo with filters, counters, and shared data mutations.</p>
-                        <a href="https://github.com/anthropics/whirlpool/tree/main/examples/todo" target="_blank">View Example →</a>
+                        <h3>01 - Dynamic Form</h3>
+                        <p>Demonstrates event bus (<code>app.ev</code>) for component communication.</p>
+                        <a href="https://github.com/lulurun/whirlpool/tree/main/examples/01-dynamic-form" target="_blank">View Example →</a>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="example-card">
-                        <h3>Shopping Cart</h3>
-                        <p>Shared <code>app.data</code> stores for multi-component aggregation.</p>
-                        <a href="https://github.com/anthropics/whirlpool/tree/main/examples/shopping-cart" target="_blank">View Example →</a>
+                        <h3>02 - Router</h3>
+                        <p>Shows Switch component for hash-based client-side routing with nested routes.</p>
+                        <a href="https://github.com/lulurun/whirlpool/tree/main/examples/02-router" target="_blank">View Example →</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="example-card">
+                        <h3>03 - Shopping Cart</h3>
+                        <p>Demonstrates <code>app.data</code> for shared state management across components.</p>
+                        <a href="https://github.com/lulurun/whirlpool/tree/main/examples/03-shopping-cart" target="_blank">View Example →</a>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="example-card">
-                        <h3>Dynamic Form</h3>
-                        <p>Schema-driven fields and publish/subscribe coordination.</p>
-                        <a href="https://github.com/anthropics/whirlpool/tree/main/examples/dynamic-form" target="_blank">View Example →</a>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="example-card">
-                        <h3>Router</h3>
-                        <p>Nested switches demonstrating hash-based navigation.</p>
-                        <a href="https://github.com/anthropics/whirlpool/tree/main/examples/router" target="_blank">View Example →</a>
-                    </div>
-                </div>
+
+            <div style="margin-top: 30px; text-align: center;">
+                <p>For more examples including trading and workspace apps, visit the <a href="https://github.com/lulurun/whirlpool/tree/main/examples" target="_blank">examples directory</a>.</p>
             </div>
         </div>
     </section>
@@ -185,17 +180,17 @@ npm start
                 <div class="doc-item">
                     <h3>Core Concepts & Deep Reference</h3>
                     <p>Learn about the fundamental concepts and detailed API reference.</p>
-                    <a href="https://github.com/anthropics/whirlpool/blob/main/docs/reference.md" target="_blank">Read Documentation →</a>
+                    <a href="https://github.com/lulurun/whirlpool/blob/main/docs/reference.md" target="_blank">Read Documentation →</a>
                 </div>
                 <div class="doc-item">
                     <h3>Contributor Guide</h3>
                     <p>Want to contribute? Check out our contributor guide.</p>
-                    <a href="https://github.com/anthropics/whirlpool/blob/main/AGENTS.md" target="_blank">Contributor Guide →</a>
+                    <a href="https://github.com/lulurun/whirlpool/blob/main/AGENTS.md" target="_blank">Contributor Guide →</a>
                 </div>
                 <div class="doc-item">
                     <h3>Example Walkthroughs</h3>
                     <p>Each example folder has its own README with detailed explanations.</p>
-                    <a href="https://github.com/anthropics/whirlpool/tree/main/examples" target="_blank">Browse Examples →</a>
+                    <a href="https://github.com/lulurun/whirlpool/tree/main/examples" target="_blank">Browse Examples →</a>
                 </div>
             </div>
 
@@ -249,9 +244,9 @@ npm start
                     <span class="logo">🌊</span> Whirlpool Framework
                 </div>
                 <div class="footer-right">
-                    <a href="https://github.com/anthropics/whirlpool" target="_blank">GitHub</a>
-                    <a href="https://github.com/anthropics/whirlpool/issues" target="_blank">Issues</a>
-                    <a href="https://github.com/anthropics/whirlpool/blob/main/docs/reference.md" target="_blank">Docs</a>
+                    <a href="https://github.com/lulurun/whirlpool" target="_blank">GitHub</a>
+                    <a href="https://github.com/lulurun/whirlpool/issues" target="_blank">Issues</a>
+                    <a href="https://github.com/lulurun/whirlpool/blob/main/docs/reference.md" target="_blank">Docs</a>
                 </div>
             </div>
             <div class="footer-bottom">
