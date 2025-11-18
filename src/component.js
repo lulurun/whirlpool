@@ -90,9 +90,9 @@ export function registerComponent(name, def) {
   const cls = class extends Component {
     constructor(name, el, app, parent) {
       super(name, el, app, parent);
-      if (app.template) {
+      if (app.getTemplate) {
         this.getTemplate = (cb) => {
-          app.template(this.name, cb);
+          app.getTemplate(this.name, cb);
         };
       }
       if (!def) {
