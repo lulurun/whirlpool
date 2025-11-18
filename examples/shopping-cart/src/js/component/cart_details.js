@@ -9,7 +9,7 @@ W.component('cart_details', {
     }, this);
 
     // Fetch cart data
-    this.app.data.fetch(['cart']);
+    this.app.data.fetch('cart');
   },
 
   getData: function(cb) {
@@ -34,7 +34,7 @@ W.component('cart_details', {
       // Call async removeFromCart method
       dataInterface.removeFromCart(productId, (result) => {
         // Refresh cart data to publish updates to all subscribers
-        this.app.data.refresh('cart');
+        this.app.data.fetch('cart');
       });
     });
 
@@ -51,7 +51,7 @@ W.component('cart_details', {
       // Call async updateQuantity method (0 will remove item)
       dataInterface.updateQuantity(productId, newQuantity, (result) => {
         // Refresh cart data to publish updates to all subscribers
-        this.app.data.refresh('cart');
+        this.app.data.fetch('cart');
       });
     });
 
@@ -75,7 +75,7 @@ W.component('cart_details', {
         }
 
         // Refresh cart data to publish updates to all subscribers
-        this.app.data.refresh('cart');
+        this.app.data.fetch('cart');
       });
     });
 

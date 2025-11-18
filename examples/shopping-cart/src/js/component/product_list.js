@@ -69,7 +69,7 @@ W.component('product_list', {
         }
 
         // Refresh cart data to publish updates to all subscribers
-        this.app.data.refresh('cart');
+        this.app.data.fetch('cart');
       });
     });
 

@@ -9,7 +9,7 @@ W.component('cart_summary', {
     }, this);
 
     // Fetch cart data
-    this.app.data.fetch(['cart']);
+    this.app.data.fetch('cart');
   },
 
   getData: function(cb) {
@@ -44,7 +44,7 @@ W.component('cart_summary', {
         // Call async clearCart method
         dataInterface.clearCart((result) => {
           // Refresh cart data to publish updates to all subscribers
-          this.app.data.refresh('cart');
+          this.app.data.fetch('cart');
         });
       }
     });
