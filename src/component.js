@@ -53,7 +53,7 @@ export class Component {
         this.rendered(() => {
           this.loadChildren(() => {
             this.complete = true;
-            this.loadCallbacks.forEach(cb);
+            this.loadCallbacks.forEach(cb => cb());
             this.loadCallbacks = [];
           })
         });

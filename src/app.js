@@ -85,10 +85,13 @@ class Data {
     const results = {};
     keys.forEach((dataKey) => {
       this._fetch(dataKey, (data) => {
+        this.ev.emit(DATA_UPDATED_EVENT + dataKey, data, null);
         results[dataKey] = data;
-        if (Object.keys(results).length === total && handler) {
-          const result = Array.isArray(dataKeys) ? results : results[dataKeys];
-          handler(result);
+        if (Object.keys(results).length === total) {
+          if (handler) {
+            const result = Array.isArray(dataKeys) ? results : results[dataKeys];
+            handler(result);
+          }
         }
       });
     });
