@@ -4,61 +4,9 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Shopping Cart - Data Sharing Example</title>
-    <script>
-      // Error display for mobile debugging - MUST BE FIRST
-      (function() {
-        var errors = [];
-
-        function showError(message, source, lineno, colno, error) {
-          var errorDiv = document.getElementById('error-display');
-          if (!errorDiv) {
-            errorDiv = document.createElement('div');
-            errorDiv.id = 'error-display';
-            errorDiv.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#dc3545;color:white;padding:10px;z-index:9999;max-height:50vh;overflow:auto;font-size:12px;';
-            if (document.body) {
-              document.body.insertBefore(errorDiv, document.body.firstChild);
-            } else {
-              // If body doesn't exist yet, wait for it
-              document.addEventListener('DOMContentLoaded', function() {
-                document.body.insertBefore(errorDiv, document.body.firstChild);
-              });
-            }
-          }
-
-          var errorMsg = document.createElement('div');
-          errorMsg.style.cssText = 'border-bottom:1px solid rgba(255,255,255,0.3);padding:5px 0;margin:5px 0;';
-          errorMsg.innerHTML = '<strong>Error:</strong> ' + message +
-            (source ? '<br><small>Source: ' + source + ':' + lineno + ':' + colno + '</small>' : '') +
-            (error && error.stack ? '<br><small>Stack: ' + error.stack.substring(0, 300) + '</small>' : '');
-          errorDiv.appendChild(errorMsg);
-        }
-
-        // Catch global errors
-        window.onerror = function(message, source, lineno, colno, error) {
-          showError(message, source, lineno, colno, error);
-          return false;
-        };
-
-        // Catch unhandled promise rejections
-        window.addEventListener('unhandledrejection', function(event) {
-          showError('Unhandled Promise Rejection: ' + (event.reason ? event.reason.toString() : 'Unknown'), null, null, null, event.reason);
-        });
-
-        // Catch console errors
-        var originalConsoleError = console.error;
-        console.error = function() {
-          var args = Array.prototype.slice.call(arguments);
-          showError('Console Error: ' + args.join(' '));
-          originalConsoleError.apply(console, arguments);
-        };
-
-        // Show a message that error handler is loaded
-        console.log('[Error Handler] Mobile error display is active');
-      })();
-    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script defer src="./whirlpool.min.map.js"></script>
+    <script defer src="./whirlpool.min.js"></script>
   </head>
   <body>
     <div class="container mt-4">
