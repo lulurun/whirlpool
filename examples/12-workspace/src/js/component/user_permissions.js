@@ -52,8 +52,7 @@ W.component('user_permissions', {
       const featureKey = $(ev.currentTarget).data('permission-toggle');
       const enabled = ev.currentTarget.checked;
       dataInterface.togglePermission(userId, featureKey, enabled, () => {
-        this.app.data.refresh('permissions');
-        this.app.data.refresh('auditLog');
+        this.app.data.fetch(['permissions', 'auditLog']);
       });
     });
 

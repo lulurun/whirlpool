@@ -20,7 +20,7 @@ const computeMidpoint = (asks, bids) => {
 
 const recordOrder = (component, payload) => {
   dataInterface.appendOrder(payload, () => {
-    component.app.data.refresh('orders');
+    component.app.data.fetch('orders');
   });
 };
 
