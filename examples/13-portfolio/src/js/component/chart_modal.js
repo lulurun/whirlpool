@@ -54,72 +54,69 @@ W.component('chart_modal', {
       this.chart = null;
     }
 
-    // Fetch price history
-    const apiClient = this.app.components.find(c => c.name === 'api_client');
-    if (apiClient) {
-      apiClient.fetchPriceHistory(symbol, (history) => {
-        // Hide loading, show chart
-        $loading.hide();
-        $chartContainer.show();
+    // Fetch price history from mock API
+    window.mockApi.fetchPriceHistory(symbol, (history) => {
+      // Hide loading, show chart
+      $loading.hide();
+      $chartContainer.show();
 
-        // Prepare chart data
-        const labels = history.map(h => {
-          const date = new Date(h.time);
-          return `${date.getMonth() + 1}/${date.getDate()}`;
-        });
-        const prices = history.map(h => h.price);
+      // Prepare chart data
+      const labels = history.map(h => {
+        const date = new Date(h.time);
+        return `${date.getMonth() + 1}/${date.getDate()}`;
+      });
+      const prices = history.map(h => h.price);
 
-        // Create chart
-        const ctx = $canvas[0].getContext('2d');
-        this.chart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: `${symbol} Price (JPY)`,
-              data: prices,
-              borderColor: 'rgb(75, 192, 192)',
-              backgroundColor: 'rgba(75, 192, 192, 0.1)',
-              tension: 0.1,
-              fill: true
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                display: true,
-                position: 'top'
-              },
-              tooltip: {
-                mode: 'index',
-                intersect: false,
-                callbacks: {
-                  label: function(context) {
-                    let label = context.dataset.label || '';
-                    if (label) {
-                      label += ': ';
-                    }
-                    label += '¥' + context.parsed.y.toLocaleString();
-                    return label;
+      // Create chart
+      const ctx = $canvas[0].getContext('2d');
+      this.chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: `${symbol} Price (JPY)`,
+            data: prices,
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            tension: 0.1,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top'
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
                   }
+                  label += '¥' + context.parsed.y.toLocaleString();
+                  return label;
                 }
               }
-            },
-            scales: {
-              y: {
-                beginAtZero: false,
-                ticks: {
-                  callback: function(value) {
-                    return '¥' + value.toLocaleString();
-                  }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              ticks: {
+                callback: function(value) {
+                  return '¥' + value.toLocaleString();
                 }
               }
             }
           }
-        });
+        }
       });
-    }
+    });
   }
 });

@@ -1,8 +1,18 @@
 W.component('symbol_view', {
+  init: function() {
+    // Subscribe to portfolio data
+    this.app.data.on('portfolio', () => {
+      this.load();
+    }, this);
+
+    // Fetch initial data
+    this.app.data.fetch(['portfolio']);
+  },
+
   getData: function(cb) {
-    const portfolio = this.app.data.portfolio || {};
-    const symbols = portfolio.symbols || [];
-    const totalValue = portfolio.totalValue || 0;
+    const portfolio = this.app.data.get('portfolio');
+    const symbols = portfolio ? portfolio.symbols : [];
+    const totalValue = portfolio ? portfolio.totalValue : 0;
 
     cb({
       symbols,
@@ -13,11 +23,6 @@ W.component('symbol_view', {
 
   rendered: function(cb) {
     const $container = $(this.el);
-
-    // Listen for portfolio updates
-    this.app.ev.on('portfolio.updated', () => {
-      this.load();
-    });
 
     // Handle chart button clicks
     $container.find('[data-role="show-chart"]').on('click', (e) => {

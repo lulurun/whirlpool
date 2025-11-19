@@ -1,8 +1,18 @@
 W.component('exchange_view', {
+  init: function() {
+    // Subscribe to portfolio data
+    this.app.data.on('portfolio', () => {
+      this.load();
+    }, this);
+
+    // Fetch initial data
+    this.app.data.fetch(['portfolio']);
+  },
+
   getData: function(cb) {
-    const portfolio = this.app.data.portfolio || {};
-    const exchanges = portfolio.exchanges || [];
-    const totalValue = portfolio.totalValue || 0;
+    const portfolio = this.app.data.get('portfolio');
+    const exchanges = portfolio ? portfolio.exchanges : [];
+    const totalValue = portfolio ? portfolio.totalValue : 0;
 
     cb({
       exchanges,
@@ -12,11 +22,6 @@ W.component('exchange_view', {
   },
 
   rendered: function(cb) {
-    // Listen for portfolio updates
-    this.app.ev.on('portfolio.updated', () => {
-      this.load();
-    });
-
     cb();
   }
 });

@@ -1,8 +1,18 @@
 W.component('detailed_view', {
+  init: function() {
+    // Subscribe to portfolio data
+    this.app.data.on('portfolio', () => {
+      this.load();
+    }, this);
+
+    // Fetch initial data
+    this.app.data.fetch(['portfolio']);
+  },
+
   getData: function(cb) {
-    const portfolio = this.app.data.portfolio || {};
-    const holdings = portfolio.holdings || [];
-    const totalValue = portfolio.totalValue || 0;
+    const portfolio = this.app.data.get('portfolio');
+    const holdings = portfolio ? portfolio.holdings : [];
+    const totalValue = portfolio ? portfolio.totalValue : 0;
 
     cb({
       holdings,
@@ -14,11 +24,6 @@ W.component('detailed_view', {
   rendered: function(cb) {
     const $container = $(this.el);
 
-    // Listen for portfolio updates
-    this.app.ev.on('portfolio.updated', () => {
-      this.load();
-    });
-
     // Handle chart button clicks
     $container.find('[data-role="show-chart"]').on('click', (e) => {
       const symbol = $(e.currentTarget).data('symbol');
@@ -26,16 +31,5 @@ W.component('detailed_view', {
     });
 
     cb();
-  },
-
-  getExchangeBadgeClass: function(exchange) {
-    const classes = {
-      'binance': 'bg-warning',
-      'coinbase': 'bg-primary',
-      'kraken': 'bg-info',
-      'bitflyer': 'bg-success',
-      'liquid': 'bg-danger'
-    };
-    return classes[exchange] || 'bg-secondary';
   }
 });

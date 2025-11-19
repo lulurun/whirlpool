@@ -1,56 +1,25 @@
-// Mock API client for portfolio data
-W.component('api_client', {
-  init: function() {
-    this.refreshInterval = null;
-    this.AUTO_REFRESH_INTERVAL = 60000; // 60 seconds
-  },
+// Mock API utility - simulates backend API calls
 
-  load: function(cb) {
-    // Fetch initial data
-    this.fetchPortfolio();
-
-    // Set up auto-refresh
-    this.refreshInterval = setInterval(() => {
-      this.fetchPortfolio();
-    }, this.AUTO_REFRESH_INTERVAL);
-
-    cb();
-  },
-
-  unload: function(cb) {
-    // Clean up interval on unload
-    if (this.refreshInterval) {
-      clearInterval(this.refreshInterval);
-    }
-    cb();
-  },
-
-  fetchPortfolio: function() {
-    // Set loading state
-    this.app.data.isLoading = true;
-
-    // Simulate network delay
+export const mockApi = {
+  // Fetch portfolio data with simulated network delay
+  fetchPortfolio: function(callback) {
     const delay = Math.floor(Math.random() * 500) + 500; // 500-1000ms
 
     setTimeout(() => {
-      try {
-        const mockData = this.generateMockPortfolio();
-        this.processPortfolioData(mockData);
-
-        // Update app data
-        this.app.data.lastUpdate = mockData.timestamp;
-        this.app.data.isLoading = false;
-
-        // Emit event
-        this.app.ev.emit('portfolio.updated');
-      } catch (error) {
-        console.error('Error fetching portfolio:', error);
-        this.app.data.isLoading = false;
-        this.app.ev.emit('portfolio.error', error);
-      }
+      const data = this.generateMockPortfolio();
+      callback(data);
     }, delay);
   },
 
+  // Fetch price history for a symbol
+  fetchPriceHistory: function(symbol, callback) {
+    setTimeout(() => {
+      const history = this.generateMockHistory(symbol);
+      callback(history);
+    }, 300);
+  },
+
+  // Generate mock portfolio data
   generateMockPortfolio: function() {
     const exchanges = ['binance', 'coinbase', 'kraken', 'bitflyer'];
     const symbols = [
@@ -106,8 +75,46 @@ W.component('api_client', {
     };
   },
 
-  processPortfolioData: function(data) {
-    const holdings = data.holdings;
+  // Generate mock price history
+  generateMockHistory: function(symbol) {
+    const symbolPrices = {
+      'BTC': 6500000,
+      'ETH': 320000,
+      'USDT': 150,
+      'USDC': 150,
+      'BNB': 35000,
+      'SOL': 12000,
+      'ADA': 60,
+      'DOT': 800,
+      'MATIC': 120,
+      'AVAX': 4500
+    };
+
+    const basePrice = symbolPrices[symbol] || 1000;
+    const history = [];
+    const days = 30;
+
+    for (let i = days; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      date.setHours(0, 0, 0, 0);
+
+      // Generate realistic price fluctuation
+      const variation = 1 + (Math.sin(i / 5) * 0.1) + (Math.random() * 0.1 - 0.05);
+      const price = Math.round(basePrice * variation);
+
+      history.push({
+        time: date.toISOString(),
+        price
+      });
+    }
+
+    return history;
+  },
+
+  // Process raw portfolio data into aggregated views
+  processPortfolioData: function(rawData) {
+    const holdings = rawData.holdings;
 
     // Calculate total value
     const totalValue = holdings.reduce((sum, h) => sum + h.jpy_value, 0);
@@ -173,56 +180,12 @@ W.component('api_client', {
       }))
       .sort((a, b) => b.total - a.total);
 
-    // Store in app.data
-    this.app.data.portfolio = {
+    return {
       holdings: detailedHoldings,
       exchanges,
       symbols,
-      totalValue
+      totalValue,
+      timestamp: rawData.timestamp
     };
-  },
-
-  fetchPriceHistory: function(symbol, cb) {
-    // Simulate network delay
-    setTimeout(() => {
-      const history = this.generateMockHistory(symbol);
-      cb(history);
-    }, 300);
-  },
-
-  generateMockHistory: function(symbol) {
-    const symbolPrices = {
-      'BTC': 6500000,
-      'ETH': 320000,
-      'USDT': 150,
-      'USDC': 150,
-      'BNB': 35000,
-      'SOL': 12000,
-      'ADA': 60,
-      'DOT': 800,
-      'MATIC': 120,
-      'AVAX': 4500
-    };
-
-    const basePrice = symbolPrices[symbol] || 1000;
-    const history = [];
-    const days = 30;
-
-    for (let i = days; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      date.setHours(0, 0, 0, 0);
-
-      // Generate realistic price fluctuation
-      const variation = 1 + (Math.sin(i / 5) * 0.1) + (Math.random() * 0.1 - 0.05);
-      const price = Math.round(basePrice * variation);
-
-      history.push({
-        time: date.toISOString(),
-        price
-      });
-    }
-
-    return history;
   }
-});
+};
