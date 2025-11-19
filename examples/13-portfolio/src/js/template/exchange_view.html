@@ -1,0 +1,48 @@
+{{#if hasExchanges}}
+<div class="table-responsive">
+  <table class="table table-striped table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Exchange</th>
+        <th class="text-end">Holdings Count</th>
+        <th class="text-end">Total Value (JPY)</th>
+        <th class="text-end">% of Portfolio</th>
+        <th>Allocation</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#exchanges}}
+      <tr>
+        <td>
+          <span class="badge {{#eq exchange "binance"}}bg-warning{{/eq}}{{#eq exchange "coinbase"}}bg-primary{{/eq}}{{#eq exchange "kraken"}}bg-info{{/eq}}{{#eq exchange "bitflyer"}}bg-success{{/eq}}{{#eq exchange "liquid"}}bg-danger{{/eq}}">
+            {{exchange}}
+          </span>
+        </td>
+        <td class="text-end monospace">{{count}}</td>
+        <td class="text-end monospace text-success"><strong>¥{{formatNumber total 0}}</strong></td>
+        <td class="text-end monospace">{{formatPercent percentage 2}}</td>
+        <td style="min-width: 200px;">
+          <div class="progress" style="height: 20px;">
+            <div class="progress-bar bg-success" role="progressbar" style="width: {{percentage}}%" aria-valuenow="{{percentage}}" aria-valuemin="0" aria-valuemax="100">
+            </div>
+          </div>
+        </td>
+      </tr>
+      {{/exchanges}}
+    </tbody>
+    <tfoot class="table-light">
+      <tr>
+        <th colspan="2" class="text-end">Total:</th>
+        <th class="text-end monospace text-success">¥{{formatNumber totalValue 0}}</th>
+        <th class="text-end">100.00%</th>
+        <th></th>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+{{else}}
+<div class="alert alert-info" role="alert">
+  <i class="fas fa-info-circle me-2"></i>
+  No exchange data available. Click the refresh button to load portfolio data.
+</div>
+{{/if}}

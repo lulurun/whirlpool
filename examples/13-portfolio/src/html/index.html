@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no"/>
+    <title>Portfolio Dashboard</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="description" content="Cryptocurrency portfolio management dashboard"/>
+    <meta name="google" content="notranslate"/>
+    <meta name="referrer" content="unsafe-url"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script defer src="./whirlpool.min.js"></script>
+    <style>
+      .monospace {
+        font-family: 'Courier New', Courier, monospace;
+      }
+      .table td, .table th {
+        vertical-align: middle;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="container py-4">
+        <!-- Header Component -->
+        <div data-component="header"></div>
+
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs mb-3" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#detailed" role="tab">Detailed Holdings</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#exchange" role="tab">By Exchange</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#symbol" role="tab">By Symbol</a>
+          </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="detailed" role="tabpanel">
+            <div data-component="detailed_view"></div>
+          </div>
+          <div class="tab-pane fade" id="exchange" role="tabpanel">
+            <div data-component="exchange_view"></div>
+          </div>
+          <div class="tab-pane fade" id="symbol" role="tabpanel">
+            <div data-component="symbol_view"></div>
+          </div>
+        </div>
+
+        <!-- Chart Modal Component -->
+        <div data-component="chart_modal"></div>
+
+        <!-- API Client (invisible service component) -->
+        <div data-component="api_client" style="display: none;"></div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
