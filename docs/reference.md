@@ -45,7 +45,22 @@ Components have access to these framework-reserved methods that are automaticall
 
 ## Component Definition Pattern
 
+**IMPORTANT:** The component definition object only accepts these lifecycle methods:
+- `init()` - Initialization
+- `getData(cb)` - Data provider
+- `rendered(cb)` - Post-render DOM manipulation
+- `cleanup()` - Cleanup logic
+
+**Any other methods defined in the component object will be ignored.** If you need custom methods, define them as external helper functions that accept the component instance as a parameter.
+
 ```javascript
+// External helper function for custom logic
+function refreshComponentData(component) {
+  // Access component properties via parameter
+  component.app.data.refresh('myData');
+  component.load();
+}
+
 W.component('component-name', {
   init: function() {
     // Initialization logic - called once
@@ -94,9 +109,8 @@ W.component('component-name', {
         element: $button[0]
       }, this);
 
-      // Update component state and reload if needed
-      this.someState = 'updated';
-      this.load(); // Reload component
+      // Call external helper function
+      refreshComponentData(this);
     });
 
     // Multiple event handlers - always use arrow functions
@@ -660,19 +674,37 @@ $container.find('.btn').on('click', (ev) => {
 
 2. **❌ Defining custom methods on component**
 ```javascript
-// WRONG - methods not bound by framework
+// WRONG - custom methods are ignored by the framework
 W.component('my_component', {
-  myCustomMethod: function() { // This won't work!
-    return this.data;
+  init: function() {
+    this.someData = 'value';
+  },
+
+  myCustomMethod: function() { // This method will be IGNORED!
+    return this.someData;
+  },
+
+  rendered: function(cb) {
+    this.myCustomMethod(); // ERROR: myCustomMethod is not defined!
+    cb();
   }
 });
 
-// CORRECT - use external class
-class MyHelper {
-  getData() {
-    return this.data;
-  }
+// CORRECT - use external helper function
+function myCustomMethod(component) {
+  return component.someData;
 }
+
+W.component('my_component', {
+  init: function() {
+    this.someData = 'value';
+  },
+
+  rendered: function(cb) {
+    const result = myCustomMethod(this); // Works!
+    cb();
+  }
+});
 ```
 
 3. **❌ Forgetting to call callback**

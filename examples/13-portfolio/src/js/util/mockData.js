@@ -1,26 +1,8 @@
-// Mock API utility - simulates backend API calls
+// Mock data generator - simulates backend data
 
-export const mockApi = {
-  // Fetch portfolio data with simulated network delay
-  fetchPortfolio: function(callback) {
-    const delay = Math.floor(Math.random() * 500) + 500; // 500-1000ms
-
-    setTimeout(() => {
-      const data = this.generateMockPortfolio();
-      callback(data);
-    }, delay);
-  },
-
-  // Fetch price history for a symbol
-  fetchPriceHistory: function(symbol, callback) {
-    setTimeout(() => {
-      const history = this.generateMockHistory(symbol);
-      callback(history);
-    }, 300);
-  },
-
+export const mockData = {
   // Generate mock portfolio data
-  generateMockPortfolio: function() {
+  generatePortfolio: function() {
     const exchanges = ['binance', 'coinbase', 'kraken', 'bitflyer'];
     const symbols = [
       { name: 'BTC', basePrice: 6500000 },
@@ -76,7 +58,7 @@ export const mockApi = {
   },
 
   // Generate mock price history
-  generateMockHistory: function(symbol) {
+  generateHistory: function(symbol) {
     const symbolPrices = {
       'BTC': 6500000,
       'ETH': 320000,

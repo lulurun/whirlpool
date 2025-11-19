@@ -12,7 +12,7 @@ import './helpers/formatDate.js';
 import './helpers/eq.js';
 
 // Import utilities
-import { mockApi } from './util/mockApi.js';
+import { api } from './util/api.js';
 
 function getTemplate(name, cb) {
   // Load templates from the template directory
@@ -33,29 +33,17 @@ W.switch('portfolio_tabs', {
   }
 });
 
-// Register shared data sources
+// Register shared data sources with API fetch functions
 app.data.register('portfolio', (cb) => {
-  // Fetch from mock API
-  mockApi.fetchPortfolio((rawData) => {
-    const processed = mockApi.processPortfolioData(rawData);
-    cb(processed);
-  });
-});
-
-app.data.register('lastUpdate', (cb) => {
-  cb(null);
-});
-
-app.data.register('isLoading', (cb) => {
-  cb(false);
+  api.fetchPortfolio(cb);
 });
 
 app.data.register('priceHistory', (cb) => {
+  // Price history needs a symbol parameter
+  // This will be called with app.data.fetch(['priceHistory'])
+  // For now, return null - actual fetch will be done per-symbol basis
   cb(null);
 });
 
 // Start the application
 app.start(document.body);
-
-// Make mockApi globally available for components
-window.mockApi = mockApi;

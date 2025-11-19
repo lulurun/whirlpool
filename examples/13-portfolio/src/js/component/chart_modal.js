@@ -1,3 +1,97 @@
+// Import API for fetching price history
+import { api } from '../util/api.js';
+
+// Helper function to show chart in modal
+function showChart(component, symbol) {
+  const $modal = $(component.el).find('.modal');
+  const $title = $modal.find('[data-role="modal-title"]');
+  const $canvas = $modal.find('[data-role="chart-canvas"]');
+  const $loading = $modal.find('[data-role="loading"]');
+  const $chartContainer = $modal.find('[data-role="chart-container"]');
+
+  // Update modal title
+  $title.text(`${symbol} Price History (30 Days)`);
+
+  // Show modal
+  const modalInstance = new bootstrap.Modal($modal[0]);
+  modalInstance.show();
+
+  // Show loading state
+  $loading.show();
+  $chartContainer.hide();
+
+  // Destroy existing chart
+  if (component.chart) {
+    component.chart.destroy();
+    component.chart = null;
+  }
+
+  // Fetch price history from API
+  api.fetchPriceHistory(symbol, (history) => {
+    // Hide loading, show chart
+    $loading.hide();
+    $chartContainer.show();
+
+    // Prepare chart data
+    const labels = history.map(h => {
+      const date = new Date(h.time);
+      return `${date.getMonth() + 1}/${date.getDate()}`;
+    });
+    const prices = history.map(h => h.price);
+
+    // Create chart
+    const ctx = $canvas[0].getContext('2d');
+    component.chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: `${symbol} Price (JPY)`,
+          data: prices,
+          borderColor: 'rgb(75, 192, 192)',
+          backgroundColor: 'rgba(75, 192, 192, 0.1)',
+          tension: 0.1,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top'
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            callbacks: {
+              label: function(context) {
+                let label = context.dataset.label || '';
+                if (label) {
+                  label += ': ';
+                }
+                label += '¥' + context.parsed.y.toLocaleString();
+                return label;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            ticks: {
+              callback: function(value) {
+                return '¥' + value.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    });
+  });
+}
+
 W.component('chart_modal', {
   init: function() {
     this.chart = null;
@@ -16,7 +110,7 @@ W.component('chart_modal', {
     // Listen for chart.show event
     this.app.ev.on('chart.show', (symbol) => {
       this.currentSymbol = symbol;
-      this.showChart(symbol);
+      showChart(this, symbol);
     });
 
     // Clean up chart when modal is hidden
@@ -28,95 +122,5 @@ W.component('chart_modal', {
     });
 
     cb();
-  },
-
-  showChart: function(symbol) {
-    const $modal = $(this.el).find('.modal');
-    const $title = $modal.find('[data-role="modal-title"]');
-    const $canvas = $modal.find('[data-role="chart-canvas"]');
-    const $loading = $modal.find('[data-role="loading"]');
-    const $chartContainer = $modal.find('[data-role="chart-container"]');
-
-    // Update modal title
-    $title.text(`${symbol} Price History (30 Days)`);
-
-    // Show modal
-    const modalInstance = new bootstrap.Modal($modal[0]);
-    modalInstance.show();
-
-    // Show loading state
-    $loading.show();
-    $chartContainer.hide();
-
-    // Destroy existing chart
-    if (this.chart) {
-      this.chart.destroy();
-      this.chart = null;
-    }
-
-    // Fetch price history from mock API
-    window.mockApi.fetchPriceHistory(symbol, (history) => {
-      // Hide loading, show chart
-      $loading.hide();
-      $chartContainer.show();
-
-      // Prepare chart data
-      const labels = history.map(h => {
-        const date = new Date(h.time);
-        return `${date.getMonth() + 1}/${date.getDate()}`;
-      });
-      const prices = history.map(h => h.price);
-
-      // Create chart
-      const ctx = $canvas[0].getContext('2d');
-      this.chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: `${symbol} Price (JPY)`,
-            data: prices,
-            borderColor: 'rgb(75, 192, 192)',
-            backgroundColor: 'rgba(75, 192, 192, 0.1)',
-            tension: 0.1,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: true,
-              position: 'top'
-            },
-            tooltip: {
-              mode: 'index',
-              intersect: false,
-              callbacks: {
-                label: function(context) {
-                  let label = context.dataset.label || '';
-                  if (label) {
-                    label += ': ';
-                  }
-                  label += '¥' + context.parsed.y.toLocaleString();
-                  return label;
-                }
-              }
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: false,
-              ticks: {
-                callback: function(value) {
-                  return '¥' + value.toLocaleString();
-                }
-              }
-            }
-          }
-        }
-      });
-    });
   }
 });

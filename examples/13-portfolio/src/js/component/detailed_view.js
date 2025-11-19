@@ -4,9 +4,6 @@ W.component('detailed_view', {
     this.app.data.on('portfolio', () => {
       this.load();
     }, this);
-
-    // Fetch initial data
-    this.app.data.fetch(['portfolio']);
   },
 
   getData: function(cb) {
