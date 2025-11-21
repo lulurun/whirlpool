@@ -12,13 +12,11 @@ function showColumn(component, columnKey) {
 
 W.component('hidden_columns', {
   init: function() {
-    // Initialize with data from localStorage directly
-    // this.hiddenColumns = hiddenColumnsStorage.getHiddenColumns();
+    this.hiddenColumns = [];
 
     // Subscribe to hidden columns changes
     this.app.data.on('hiddenColumns', (hiddenColumns) => {
       this.hiddenColumns = hiddenColumns;
-      hiddenColumns.push('4444444');
       this.load();
     }, this);
 
@@ -27,16 +25,14 @@ W.component('hidden_columns', {
   },
 
   getData: function(cb) {
-    const hiddenColumns = this.app.data.get('hiddenColumns') || [];
-    hiddenColumns.push('77777');
-    const columns = hiddenColumns.map(col => ({
+    const columns = this.hiddenColumns.map(col => ({
       key: col,
       name: dataFlattener.formatColumnName(col)
     }));
 
     cb({
       columns,
-      hasHiddenColumns: true,//columns.length > 0
+      hasHiddenColumns: columns.length > 0
     });
   },
 

@@ -24,7 +24,6 @@ app.data.register('tableData', (cb) => {
 app.data.register('hiddenColumns', (cb) => {
   // Fetch from localStorage (synchronous but wrapped in callback)
   const hiddenColumns = hiddenColumnsStorage.getHiddenColumns();
-  hiddenColumns.push('11111111');
   cb(hiddenColumns);
 });
 
