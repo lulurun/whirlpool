@@ -98,9 +98,6 @@ export function registerComponent(name, def) {
       if (!def) {
         return;
       }
-      if (def.init) {
-        def.init.bind(this)();
-      }
       if (def.getData) {
         this.getData = def.getData.bind(this);
       }
@@ -109,6 +106,10 @@ export function registerComponent(name, def) {
       }
       if (def.cleanup) {
         this.cleanup = def.cleanup.bind(this);
+      }
+
+      if (def.init) {
+        def.init.bind(this)();
       }
     }
   }
