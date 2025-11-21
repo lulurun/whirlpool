@@ -1,0 +1,39 @@
+<div class="table-container">
+  {{#if hasData}}
+  <table class="table table-striped table-hover table-bordered data-table">
+    <thead>
+      <tr>
+        {{#headers}}
+        <th data-column="{{key}}"
+            class="{{#if isId}}column-header-id{{else}}column-header-sortable{{/if}}{{#if isSorted}} sorted-{{sortDirection}}{{/if}}">
+          {{name}}
+          <span class="sort-indicator"></span>
+          {{#unless isId}}
+          <button class="btn btn-outline-danger btn-sm hide-btn"
+                  data-column="{{key}}"
+                  title="Hide column">×</button>
+          {{/unless}}
+        </th>
+        {{/headers}}
+      </tr>
+    </thead>
+    <tbody>
+      {{#rows}}
+      <tr>
+        {{#cells}}
+        <td data-row="{{../rowIndex}}"
+            data-column="{{key}}"
+            class="{{#if isSelected}}cell-selected{{/if}}{{#if isRowHighlight}} row-highlight{{/if}}{{#if isColumnHighlight}} column-highlight{{/if}}">
+          {{value}}
+        </td>
+        {{/cells}}
+      </tr>
+      {{/rows}}
+    </tbody>
+  </table>
+  {{else}}
+  <div class="alert alert-info">
+    No data to display
+  </div>
+  {{/if}}
+</div>

@@ -1,0 +1,20 @@
+<div class="hidden-columns-container">
+  <h5 class="mb-3">
+    <i class="fas fa-eye-slash text-muted me-2"></i>
+    Hidden Columns
+  </h5>
+  <div>
+    {{#if hasHiddenColumns}}
+      {{#columns}}
+      <span class="badge bg-secondary hidden-column-badge">
+        {{name}}
+        <button class="btn btn-outline-success btn-sm show-btn"
+                data-column="{{key}}"
+                title="Show column">+</button>
+      </span>
+      {{/columns}}
+    {{else}}
+      <span class="text-muted">No hidden columns</span>
+    {{/if}}
+  </div>
+</div>
