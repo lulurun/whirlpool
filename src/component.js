@@ -37,10 +37,6 @@ export class Component {
   }
 
   load(cb) {
-    if (cb) this.loadCallbacks.push(cb);
-    if (!this.complete) return;
-
-    this.complete = false;
     this.getData(data => {
       this.getTemplate((template) => {
         // render
@@ -52,9 +48,7 @@ export class Component {
         // after render
         this.rendered(() => {
           this.loadChildren(() => {
-            this.complete = true;
-            this.loadCallbacks.forEach(cb => cb());
-            this.loadCallbacks = [];
+            if (cb) cb();
           })
         });
       });
