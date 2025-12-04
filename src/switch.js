@@ -2,7 +2,7 @@ import factory from './factory.js';
 
 const DEFAULT_ATTR = 'data-default';
 const CURRENT_ATTR = 'data-current';
-const _RE = /^#([^\/]+)/;
+const _RE = /^#([^\/\?]+)/;
 
 export class Switch {
   constructor(name, el, app, parent) {

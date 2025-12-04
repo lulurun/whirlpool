@@ -51,6 +51,12 @@ class Data {
     return this.store.get(dataKey).value;
   }
 
+  set(dataKey, data) {
+    const def = this.store.get(dataKey);
+    def.value = data;
+    this.ev.emit(DATA_UPDATED_EVENT + dataKey, data, null);
+  }
+
   register(dataKey, fetchFn) {
     this.store.set(dataKey, {
       value: null,
@@ -70,28 +76,23 @@ class Data {
     // Start new fetch
     this.pending.set(dataKey, [handler]);
     def.fetch((data) => {
-      def.value = data;
-
-      // Call all queued handlers
       const handlers = this.pending.get(dataKey);
       this.pending.delete(dataKey);
       handlers.forEach(h => h(data));
     });
   }
 
-  fetch(dataKeys, handler) {
+  fetch(dataKeys, callback) {
     const keys = Array.isArray(dataKeys) ? dataKeys : [dataKeys];
     const total = keys.length;
-    const results = {};
+    var completed = 0;
     keys.forEach((dataKey) => {
       this._fetch(dataKey, (data) => {
+        this.set(dataKey, data);
         this.ev.emit(DATA_UPDATED_EVENT + dataKey, data, null);
-        results[dataKey] = data;
-        if (Object.keys(results).length === total) {
-          if (handler) {
-            const result = Array.isArray(dataKeys) ? results : results[dataKeys];
-            handler(result);
-          }
+        completed++;
+        if (completed === total) {
+          if (callback) callback();
         }
       });
     });
